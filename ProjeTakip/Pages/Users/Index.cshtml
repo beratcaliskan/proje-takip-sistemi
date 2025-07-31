@@ -1,0 +1,214 @@
+@page
+@model ProjeTakip.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Kullanıcı Yönetimi</h2>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    Yeni Kullanıcı Ekle
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kullanıcı Listesi -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Kayıtlı Kullanıcılar</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Kullanicilar != null && Model.Kullanicilar.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Kimlik No</th>
+                                        <th>Ad Soyad</th>
+                                        <th>Rol</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var kullanici in Model.Kullanicilar)
+                                    {
+                                        <tr>
+                                            <td>@kullanici.Kimlik</td>
+                                            <td>@kullanici.AdSoyad</td>
+                                            <td>
+                                                @if (kullanici.Rol == 1)
+                                                {
+                                                    <span class="badge bg-danger">Sistem Yöneticisi</span>
+                                                }
+                                                else if (kullanici.Rol == 2)
+                                                {
+                                                    <span class="badge bg-warning">Proje Yöneticisi</span>
+                                                }
+                                                else if (kullanici.Rol == 3)
+                                                {
+                                                    <span class="badge bg-info">Proje Uzmanı</span>
+                                                }
+                                                else if (kullanici.Rol == 4)
+                                                {
+                                                    <span class="badge bg-success">Departman Sorumlusu</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Kullanıcı</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-warning" 
+                                                        onclick="openEditModal(@kullanici.id, '@kullanici.Kimlik', '@kullanici.AdSoyad', @kullanici.Rol)">
+                                                    Düzenle
+                                                </button>
+                                                <form method="post" style="display:inline;" 
+                                                      onsubmit="return confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')">
+                                                    <input type="hidden" name="handler" value="Delete" />
+                                                    <input type="hidden" name="id" value="@kullanici.id" />
+                                                    <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Henüz kayıtlı kullanıcı bulunmamaktadır.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kullanıcı Ekleme Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Yeni Kullanıcı Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @Model.SuccessMessage
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label for="Kimlik" class="form-label">Kimlik No</label>
+                        <input type="text" class="form-control" id="Kimlik" name="Kimlik" asp-for="Kimlik" required>
+                        <span asp-validation-for="Kimlik" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="AdSoyad" class="form-label">Ad Soyad</label>
+                        <input type="text" class="form-control" id="AdSoyad" name="AdSoyad" asp-for="AdSoyad" required>
+                        <span asp-validation-for="AdSoyad" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Rol" class="form-label">Rol</label>
+                        <select class="form-select" id="Rol" name="Rol" asp-for="Rol" required>
+                            <option value="">Rol Seçiniz</option>
+                            <option value="1">Sistem Yöneticisi</option>
+                            <option value="2">Proje Yöneticisi</option>
+                            <option value="3">Proje Uzmanı</option>
+                            <option value="4">Departman Sorumlusu</option>
+                            <option value="5">Kullanıcı</option>
+                        </select>
+                        <span asp-validation-for="Rol" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kullanıcı Ekle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Kullanıcı Düzenleme Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <input type="hidden" name="handler" value="Edit" />
+                <input type="hidden" name="EditUserId" id="editUserId" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Kullanıcı Düzenle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="EditKimlik" class="form-label">Kimlik No</label>
+                        <input type="text" class="form-control" id="EditKimlik" name="EditKimlik" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="EditAdSoyad" class="form-label">Ad Soyad</label>
+                        <input type="text" class="form-control" id="EditAdSoyad" name="EditAdSoyad" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="EditRol" class="form-label">Rol</label>
+                        <select class="form-select" id="EditRol" name="EditRol" required>
+                            <option value="">Rol Seçiniz</option>
+                            <option value="1">Sistem Yöneticisi</option>
+                            <option value="2">Proje Yöneticisi</option>
+                            <option value="3">Proje Uzmanı</option>
+                            <option value="4">Departman Sorumlusu</option>
+                            <option value="5">Kullanıcı</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function openEditModal(id, kimlik, adSoyad, rol) {
+            document.getElementById('editUserId').value = id;
+            document.getElementById('EditKimlik').value = kimlik;
+            document.getElementById('EditAdSoyad').value = adSoyad;
+            document.getElementById('EditRol').value = rol;
+            
+            var editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            editModal.show();
+        }
+
+        // Modal açılma durumunda hata/başarı mesajlarını göster
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage) || !string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <text>
+            document.addEventListener('DOMContentLoaded', function() {
+                var addModal = new bootstrap.Modal(document.getElementById('addUserModal'));
+                addModal.show();
+            });
+            </text>
+        }
+    </script>
+}

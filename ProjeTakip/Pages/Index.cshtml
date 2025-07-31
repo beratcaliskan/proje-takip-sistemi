@@ -1,0 +1,78 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Ana Sayfa - Proje Takip Sistemi";
+}
+
+<div class="container mt-4">
+
+    <!-- Dashboard Kartları -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Toplam Projeler</h6>
+                    <h4>0</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Aktif Projeler</h6>
+                    <h4>0</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Tamamlanan Projeler</h6>
+                    <h4>0</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Bekleyen Projeler</h6>
+                    <h4>0</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menü Navigasyonu -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Sistem Menüsü</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <strong>Projeler</strong>
+                            <p class="mb-1">Proje oluşturma, düzenleme ve takip işlemleri</p>
+                        </a>
+                        <a href="/Users" class="list-group-item list-group-item-action">
+                            <strong>Kullanıcılar</strong>
+                            <p class="mb-1">Kullanıcı ekleme, düzenleme ve yetki yönetimi</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <strong>Raporlar</strong>
+                            <p class="mb-1">Proje raporları ve istatistikler</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <strong>Ayarlar</strong>
+                            <p class="mb-1">Sistem ayarları ve konfigürasyon</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

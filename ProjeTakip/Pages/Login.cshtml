@@ -1,0 +1,47 @@
+@page
+@model ProjeTakip.Pages.LoginModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card login-card">
+                <div class="card-header text-center">
+                    <h4>Proje Takip Sistemi</h4>
+                    <p>Personel kimliğinizi girerek giriş yapın</p>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="Kimlik" class="form-label">Personel Kimlik Numarası</label>
+                            <input asp-for="Kimlik" class="form-control" 
+                                   placeholder="Personel Kimlik Numarası" required>
+                            <span asp-validation-for="Kimlik" class="text-danger"></span>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(ViewData["ErrorMessage"] as string))
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @ViewData["ErrorMessage"]
+                            </div>
+                        }
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            Giriş Yap
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-card {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+</style>
