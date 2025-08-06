@@ -136,3 +136,4 @@ C:\Users\beratz\source\repos\ProjeTakip\ProjeTakip\bin\Debug\net8.0\runtimes\win
 C:\Users\beratz\source\repos\ProjeTakip\ProjeTakip\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\beratz\source\repos\ProjeTakip\ProjeTakip\obj\Debug\net8.0\ProjeTakip.csproj.AssemblyReference.cache
 C:\Users\beratz\source\repos\ProjeTakip\ProjeTakip\obj\Debug\net8.0\ProjeTakip.csproj.Up2Date
+C:\Users\beratz\source\repos\ProjeTakip\ProjeTakip\obj\Debug\net8.0\ProjeTakip.sourcelink.json

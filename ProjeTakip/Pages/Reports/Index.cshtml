@@ -1,0 +1,1153 @@
+@page
+@model ProjeTakip.Pages.Reports.IndexModel
+@{
+    ViewData["Title"] = "Raporlar - Proje Takip Sistemi";
+}
+
+<!-- Hero Section -->
+<section class="hero-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold mb-3 text-white">
+                    <i class="fas fa-chart-line me-3 text-white"></i>
+                    Raporlar ve İstatistikler
+                </h1>
+                <p class="lead mb-0 opacity-90 text-white">
+                    Proje performansını analiz edin ve detaylı raporları inceleyin
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Genel İstatistikler -->
+<section class="statistics-overview py-5">
+    <div class="container">
+        <div class="row g-4 mb-5">
+            <div class="col-12">
+                <h2 class="section-title mb-4">
+                    <i class="fas fa-chart-bar me-2 text-primary"></i>
+                    Genel İstatistikler
+                </h2>
+            </div>
+            
+            <!-- Toplam Proje Sayısı -->
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card card border-0 shadow-modern h-100 hover-lift">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="stat-icon bg-primary-light">
+                                <i class="fas fa-project-diagram text-primary"></i>
+                            </div>
+                            <div class="stat-trend text-success">
+                                <i class="fas fa-arrow-up me-1"></i>
+                                <small>+12%</small>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number mb-1">@Model.ToplamProje</h3>
+                            <p class="stat-label mb-0">Toplam Proje</p>
+                            <small class="text-muted">Tüm projeler</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aktif Proje Sayısı -->
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card card border-0 shadow-modern h-100 hover-lift">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="stat-icon bg-success-light">
+                                <i class="fas fa-play-circle text-success"></i>
+                            </div>
+                            <div class="stat-trend text-success">
+                                <i class="fas fa-arrow-up me-1"></i>
+                                <small>+8%</small>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number mb-1">@Model.AktifProje</h3>
+                            <p class="stat-label mb-0">Aktif Proje</p>
+                            <small class="text-muted">Devam eden</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tamamlanan Proje Sayısı -->
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card card border-0 shadow-modern h-100 hover-lift">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="stat-icon bg-info-light">
+                                <i class="fas fa-check-circle text-info"></i>
+                            </div>
+                            <div class="stat-trend text-success">
+                                <i class="fas fa-arrow-up me-1"></i>
+                                <small>+15%</small>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number mb-1">@Model.TamamlananProje</h3>
+                            <p class="stat-label mb-0">Tamamlanan</p>
+                            <small class="text-muted">Başarılı</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- İptal Edilen Proje Sayısı -->
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card card border-0 shadow-modern h-100 hover-lift">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="stat-icon bg-danger-light">
+                                <i class="fas fa-times-circle text-danger"></i>
+                            </div>
+                            <div class="stat-trend text-danger">
+                                <i class="fas fa-arrow-down me-1"></i>
+                                <small>-2%</small>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number mb-1">@Model.IptalEdilenProje</h3>
+                            <p class="stat-label mb-0">İptal Edilen</p>
+                            <small class="text-muted">Durdurulmuş</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<div class="container-fluid py-5">
+    <!-- Filtreleme ve Arama Bölümü -->
+    <section class="filter-section mb-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-modern">
+                        <div class="card-body p-4">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label for="reportFilter" class="form-label fw-semibold">
+                                        <i class="fas fa-filter me-1"></i>
+                                        Rapor Türü
+                                    </label>
+                                    <select id="reportFilter" class="form-select">
+                                        <option value="">Müdürlük Bazlı İstatistikler</option>
+                                        <option value="departman">Departman Bazlı İstatistikler</option>
+                                        <option value="aylik">Aylık Proje Dağılımı</option>
+                                        <option value="asama">Proje Aşama Analizi</option>
+                                        <option value="durum">Proje Durum Analizi</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="mudurlukFilter" class="form-label fw-semibold">
+                                        <i class="fas fa-building me-1"></i>
+                                        Müdürlük Seçimi
+                                    </label>
+                                    <select id="mudurlukFilter" class="form-select">
+                                        <option value="">Tüm Müdürlükler</option>
+                                        @foreach (var mudurluk in Model.MudurlukIstatistikleri)
+                                        {
+                                            <option value="@mudurluk.MudurlukAdi">@mudurluk.MudurlukAdi</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="searchInput" class="form-label fw-semibold">
+                                        <i class="fas fa-search me-1"></i>
+                                        Arama
+                                    </label>
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Arama yapın...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="sortBy" class="form-label fw-semibold">
+                                        <i class="fas fa-sort me-1"></i>
+                                        Sıralama
+                                    </label>
+                                    <select id="sortBy" class="form-select">
+                                        <option value="">Varsayılan</option>
+                                        <option value="name-asc">İsim (A-Z)</option>
+                                        <option value="name-desc">İsim (Z-A)</option>
+                                        <option value="count-asc">Sayı (Artan)</option>
+                                        <option value="count-desc">Sayı (Azalan)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div id="resultCount" class="text-muted small"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Müdürlük Bazlı İstatistikler -->
+    <section id="mudurlukSection" class="statistics-section">
+        <div class="container">
+            <div class="card border-0 shadow-modern">
+                <div class="card-header bg-transparent border-0">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-building me-2 text-primary"></i>
+                        Müdürlük Bazında İstatistikler
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table id="mudurlukTable" class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0 fw-semibold text-muted">
+                                        <i class="fas fa-building me-1"></i>
+                                        Müdürlük
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-hashtag me-1"></i>
+                                        Toplam Proje
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-play-circle me-1"></i>
+                                        Aktif Proje
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Tamamlanan
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-end">
+                                        <i class="fas fa-money-bill-wave me-1"></i>
+                                        Toplam Maliyet
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-chart-line me-1"></i>
+                                        Başarı Oranı
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-print me-1"></i>
+                                        İşlemler
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var mudurluk in Model.MudurlukIstatistikleri)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                    <span class="text-white fw-bold small">@mudurluk.MudurlukAdi.Substring(0, 1).ToUpper()</span>
+                                                </div>
+                                                <span class="fw-medium">@mudurluk.MudurlukAdi</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary rounded-pill">@mudurluk.ToplamProje</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-success rounded-pill">@mudurluk.AktifProje</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info rounded-pill">@mudurluk.TamamlananProje</span>
+                                        </td>
+                                        <td class="text-end fw-semibold text-primary">
+                                            @mudurluk.ToplamMaliyet.ToString("C", new System.Globalization.CultureInfo("tr-TR"))
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div class="progress me-2" style="width: 60px; height: 8px;">
+                                                    <div class="progress-bar bg-success" style="width: @mudurluk.BasariOrani%"></div>
+                                                </div>
+                                                <span class="fw-semibold text-success">%@mudurluk.BasariOrani.ToString("F1")</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="printReport('mudurluk', '@mudurluk.MudurlukAdi')" title="@mudurluk.MudurlukAdi Raporu Yazdır">
+                                                <i class="fas fa-print me-1"></i> Yazdır
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Departman Bazlı İstatistikler -->
+    <section id="departmanSection" class="statistics-section">
+        <div class="container">
+            <div class="card border-0 shadow-modern">
+                <div class="card-header bg-transparent border-0">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-sitemap me-2 text-primary"></i>
+                        Departman Bazlı İstatistikler
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table id="departmanTable" class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0 fw-semibold text-muted">
+                                        <i class="fas fa-sitemap me-1"></i>
+                                        Departman
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-hashtag me-1"></i>
+                                        Proje Sayısı
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-end">
+                                        <i class="fas fa-money-bill-wave me-1"></i>
+                                        Toplam Maliyet
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-end">
+                                        <i class="fas fa-calculator me-1"></i>
+                                        Ortalama Maliyet
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-print me-1"></i>
+                                        İşlemler
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var departman in Model.DepartmanIstatistikleri)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                    <span class="text-white fw-bold small">@departman.DepartmanAdi.Substring(0, 1).ToUpper()</span>
+                                                </div>
+                                                <span class="fw-medium">@departman.DepartmanAdi</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info rounded-pill">@departman.ProjeSayisi</span>
+                                        </td>
+                                        <td class="text-end fw-semibold text-primary">
+                                            @departman.ToplamMaliyet.ToString("C", new System.Globalization.CultureInfo("tr-TR"))
+                                        </td>
+                                        <td class="text-end fw-semibold text-success">
+                                            @departman.OrtalamaMaliyet.ToString("C", new System.Globalization.CultureInfo("tr-TR"))
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="printReport('departman', '@departman.DepartmanAdi')" title="@departman.DepartmanAdi Raporu Yazdır">
+                                                <i class="fas fa-print me-1"></i> Yazdır
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Aylık Proje Dağılımı -->
+    <section id="aylikSection" class="statistics-section">
+        <div class="container">
+            <div class="card border-0 shadow-modern">
+                <div class="card-header bg-transparent border-0">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-calendar me-2 text-primary"></i>
+                        Aylık Proje Dağılımı
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table id="aylikTable" class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0 fw-semibold text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        Ay
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-hashtag me-1"></i>
+                                        Proje Sayısı
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-end">
+                                        <i class="fas fa-money-bill-wave me-1"></i>
+                                        Toplam Maliyet
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-end">
+                                        <i class="fas fa-calculator me-1"></i>
+                                        Ortalama Maliyet
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-print me-1"></i>
+                                        İşlemler
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var aylik in Model.AylikIstatistikler)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-success rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                    <i class="fas fa-calendar text-white"></i>
+                                                </div>
+                                                <span class="fw-medium">@aylik.Ay</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary rounded-pill">@aylik.ProjeSayisi</span>
+                                        </td>
+                                        <td class="text-end fw-semibold text-primary">
+                                            @aylik.ToplamMaliyet.ToString("C", new System.Globalization.CultureInfo("tr-TR"))
+                                        </td>
+                                        <td class="text-end fw-semibold text-success">
+                                            @aylik.OrtalamaMaliyet.ToString("C", new System.Globalization.CultureInfo("tr-TR"))
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="printReport('ay', '@aylik.Ay')" title="@aylik.Ay Raporu Yazdır">
+                                                <i class="fas fa-print me-1"></i> Yazdır
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Proje Aşama Analizi -->
+    <section id="asamaSection" class="statistics-section">
+        <div class="container">
+            <div class="card border-0 shadow-modern">
+                <div class="card-header bg-transparent border-0">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-list me-2 text-primary"></i>
+                        Proje Aşama Analizi
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @if (Model.AsamaIstatistikleri != null && Model.AsamaIstatistikleri.Any())
+                    {
+                        <div class="table-responsive">
+                        <table id="asamaTable" class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0 fw-semibold text-muted">
+                                        <i class="fas fa-tasks me-1"></i>
+                                        Aşama
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-hashtag me-1"></i>
+                                        Proje Sayısı
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-end">
+                                        <i class="fas fa-percentage me-1"></i>
+                                        Yüzde
+                                    </th>
+                                    <th class="border-0 fw-semibold text-muted text-center">
+                                        <i class="fas fa-print me-1"></i>
+                                        İşlemler
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var asama in Model.AsamaIstatistikleri)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-warning rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                    <i class="fas fa-cog text-white"></i>
+                                                </div>
+                                                <span class="fw-medium">@asama.AsamaAdi</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-secondary rounded-pill">@asama.ProjeSayisi</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="d-flex align-items-center justify-content-end">
+                                                <span class="fw-semibold me-2">%@asama.Yuzde.ToString("F1")</span>
+                                                <div class="progress" style="width: 60px; height: 8px;">
+                                                    <div class="progress-bar bg-info" role="progressbar" style="width: @asama.Yuzde%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="printReport('asama', '@asama.AsamaAdi')" title="@asama.AsamaAdi Raporu Yazdır">
+                                                <i class="fas fa-print me-1"></i> Yazdır
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Henüz aşama verisi bulunmuyor.</h5>
+                                <p class="text-muted">Projeler oluşturuldukça aşama analizi burada görüntülenecektir.</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Proje Durum Analizi -->
+    <section id="durumSection" class="statistics-section">
+        <div class="container">
+            <div class="card border-0 shadow-modern">
+                <div class="card-header bg-transparent border-0">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2 text-primary"></i>
+                        Proje Durum Analizi
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        @foreach (var proje in Model.TumProjeler)
+                        {
+                            <div class="col-lg-4 col-md-6">
+                                <div class="bg-white rounded border p-4 h-100 hover-lift">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="font-medium mb-0">@proje.ProjeAd</h6>
+                                        <span class="badge @(proje.Durum == 1 ? "bg-warning" : proje.Durum == 2 ? "bg-primary" : proje.Durum == 3 ? "bg-success" : "bg-info") rounded-pill">
+                                            @(proje.Durum == 1 ? "Onay Bekliyor" : proje.Durum == 2 ? "Planlama" : proje.Durum == 3 ? "Devam Ediyor" : "Tamamlandı")
+                                        </span>
+                                    </div>
+                                    <div class="project-details">
+                                        <p class="text-xs text-muted mb-2">
+                                            <i class="fas fa-building me-1"></i>
+                                            @proje.Mudurluk
+                                        </p>
+                                        <p class="text-xs text-muted mb-2">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            @proje.BaslangicTarihi
+                                        </p>
+                                        <p class="text-xs text-muted mb-3">
+                                            <i class="fas fa-money-bill-wave me-1"></i>
+                                            @proje.MaliyetFormatli
+                                        </p>
+                                        <div class="text-center">
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="printReport('proje', @proje.ProjeID)" title="@proje.ProjeAd Raporu Yazdır">
+                                                <i class="fas fa-print me-1"></i>
+                                                Yazdır
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        // Basit ve etkili filtreleme sistemi
+        function filterReports() {
+            const reportFilter = document.getElementById('reportFilter');
+            const searchInput = document.getElementById('searchInput');
+            const sortBy = document.getElementById('sortBy');
+            
+            if (!reportFilter || !searchInput || !sortBy) {
+                console.error('Required elements not found');
+                return;
+            }
+            
+            const reportType = reportFilter.value;
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const sortValue = sortBy.value;
+            
+            // Eğer arama terimi boşsa, sıralama da resetlensin
+            if (searchTerm === '') {
+                sortBy.value = '';
+            }
+
+            // Tüm section'ları gizle
+            const sections = ['mudurlukSection', 'departmanSection', 'aylikSection', 'asamaSection', 'durumSection'];
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) {
+                    section.classList.remove('active');
+                }
+            });
+
+            // Seçilen section'ı göster
+            let targetSectionId = 'mudurlukSection'; // varsayılan
+            if (reportType === 'departman') targetSectionId = 'departmanSection';
+            else if (reportType === 'aylik') targetSectionId = 'aylikSection';
+            else if (reportType === 'asama') targetSectionId = 'asamaSection';
+            else if (reportType === 'durum') targetSectionId = 'durumSection';
+
+            const targetSection = document.getElementById(targetSectionId);
+            if (targetSection) {
+            // Remove 'active' class from all other sections
+            document.querySelectorAll('.statistics-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            targetSection.classList.add('active');
+                
+                
+                // Arama ve sıralama uygula
+                if (targetSectionId === 'durumSection') {
+                    filterDurumCards(searchTerm);
+                } else {
+                    const table = targetSection.querySelector('table');
+                    if (table) {
+                        filterTable(table, searchTerm, sortValue);
+                    }
+                }
+            }
+        }
+
+        // Durum kartlarını filtrele
+        function filterDurumCards(searchTerm) {
+            const cards = document.querySelectorAll('#durumSection .col-lg-4');
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (searchTerm === '' || text.includes(searchTerm)) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Arama terimi boşsa tüm kartları göster
+            if (searchTerm === '') {
+                cards.forEach(card => {
+                    card.style.display = '';
+                });
+                visibleCount = cards.length;
+            }
+            
+            updateResultCount(visibleCount, cards.length);
+        }
+
+        // Tablo filtrele
+        function filterTable(table, searchTerm, sortValue) {
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (searchTerm === '' || text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Arama terimi boşsa orijinal sıralamaya dön
+            if (searchTerm === '') {
+                // Orijinal sıralamayı geri yükle (DOM sırasına göre)
+                const originalRows = Array.from(tbody.querySelectorAll('tr'));
+                tbody.innerHTML = '';
+                originalRows.forEach(row => tbody.appendChild(row));
+            }
+            // Sıralama
+            else if (sortValue) {
+                const visibleRows = rows.filter(row => row.style.display !== 'none');
+                visibleRows.sort((a, b) => {
+                    const aText = a.cells[0].textContent.trim();
+                    const bText = b.cells[0].textContent.trim();
+                    
+                    if (sortValue === 'name-asc') return aText.localeCompare(bText, 'tr');
+                    if (sortValue === 'name-desc') return bText.localeCompare(aText, 'tr');
+                    
+                    const aCount = parseInt(a.cells[1]?.textContent) || 0;
+                    const bCount = parseInt(b.cells[1]?.textContent) || 0;
+                    
+                    if (sortValue === 'count-asc') return aCount - bCount;
+                    if (sortValue === 'count-desc') return bCount - aCount;
+                    
+                    return 0;
+                });
+                
+                tbody.innerHTML = '';
+                visibleRows.forEach(row => tbody.appendChild(row));
+                rows.filter(row => row.style.display === 'none').forEach(row => tbody.appendChild(row));
+            }
+
+            updateResultCount(visibleCount, rows.length);
+        }
+
+        // Sonuç sayısını güncelle
+        function updateResultCount(visible, total) {
+            const countElement = document.getElementById('resultCount');
+            if (countElement) {
+                countElement.textContent = visible === total ? 
+                    `Toplam ${total} kayıt gösteriliyor` : 
+                    `${visible} / ${total} kayıt gösteriliyor`;
+            }
+        }
+
+// Yeni print fonksiyonu - Proje ID'sine göre kapsamlı rapor oluşturur
+        async function printReport(kategori, projeId) {
+            console.log('Kapsamlı Print Report başlatıldı - Kategori:', kategori, 'Proje ID:', projeId);
+            console.log('Proje ID tipi:', typeof projeId);
+            
+            // Parametre kontrolü
+            if (!projeId || projeId === 'undefined' || projeId === 'null') {
+                alert('Parametre bulunamadı. Lütfen sayfayı yenileyin ve tekrar deneyin.');
+                return;
+            }
+            
+            try {
+                let url;
+                // Proje ID sayısal ise GetProjeRaporu, string ise GetGenelRapor kullan
+                if (!isNaN(projeId) && Number.isInteger(Number(projeId))) {
+                    url = `/api/Reports/GetProjeRaporu?projeId=${projeId}`;
+                } else {
+                    url = `/api/Reports/GetGenelRapor?kategori=${encodeURIComponent(kategori)}&deger=${encodeURIComponent(projeId)}`;
+                }
+                console.log('Fetch URL:', url);
+                
+                // Proje ID'sine göre veritabanından kapsamlı veri çek
+                const response = await fetch(url);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    console.error('HTTP Error:', response.status, response.statusText);
+                    throw new Error(`Veri çekme hatası: ${response.status} - ${response.statusText}`);
+                }
+                
+                const raporData = await response.json();
+                console.log('Kapsamlı rapor verisi alındı:', raporData);
+                
+                if (!raporData) {
+                    alert('Rapor verisi bulunamadı.');
+                    return;
+                }
+                
+                // Rapor başlığını oluştur
+                let raporBasligi;
+                if (raporData.proje) {
+                    // Proje bazlı rapor
+                    raporBasligi = `${raporData.proje.projeAd.toUpperCase()} PROJESİ KAPSAMLI RAPORU`;
+                } else {
+                    // Genel rapor
+                    raporBasligi = `${raporData.kategori.toUpperCase()} RAPORU - ${raporData.deger.toUpperCase()}`;
+                }
+                
+                // Verileri değişkenlere ata
+                const mudurlukData = raporData.mudurlukIstatistikleri;
+                const departmanData = raporData.departmanIstatistikleri;
+                const aylikData = raporData.aylikDagilim;
+                const asamaData = raporData.asamaIstatistikleri;
+                const genelIstatistikler = raporData.genelIstatistikler;
+                const projeAsamalari = raporData.projeAsamalari;
+                const durumBazliProjeler = raporData.durumBazliProjeler;
+                const tumProjeler = raporData.tumProjeler;
+    
+                // Müdürlük tablosu oluştur
+                let mudurlukHTML = '';
+                mudurlukData.forEach(mudurluk => {
+                    const toplamMaliyet = mudurluk.toplamMaliyet || 0;
+                    const basariOrani = mudurluk.basariOrani || 0;
+                    const mudurlukAdi = mudurluk.mudurlukAdi || 'Belirtilmemiş';
+                    mudurlukHTML += `
+                        <tr>
+                            <td>${mudurlukAdi}</td>
+                            <td>${mudurluk.toplamProje || 0}</td>
+                            <td>${mudurluk.aktifProje || 0}</td>
+                            <td>${mudurluk.tamamlananProje || 0}</td>
+                            <td>${toplamMaliyet.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'})}</td>
+                            <td>${basariOrani.toFixed(1)}%</td>
+                        </tr>
+                    `;
+                });
+    
+                // Departman tablosu oluştur
+                let departmanHTML = '';
+                departmanData.forEach(departman => {
+                    const toplamMaliyet = departman.toplamMaliyet || 0;
+                    const ortalamaMaliyet = departman.ortalamaMaliyet || 0;
+                    const departmanAdi = departman.departmanAdi || 'Belirtilmemiş';
+                    departmanHTML += `
+                        <tr>
+                            <td>${departmanAdi}</td>
+                            <td>${departman.projeSayisi || 0}</td>
+                            <td>${toplamMaliyet.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'})}</td>
+                            <td>${ortalamaMaliyet.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'})}</td>
+                        </tr>
+                    `;
+                });
+    
+                // Aylık dağılım tablosu oluştur
+                let aylikHTML = '';
+                aylikData.forEach(aylik => {
+                    const toplamMaliyet = aylik.toplamMaliyet || 0;
+                    const ortalamaMaliyet = aylik.ortalamaMaliyet || 0;
+                    const ayAdi = aylik.ayAdi || 'Bilinmiyor';
+                    aylikHTML += `
+                        <tr>
+                            <td>${ayAdi}</td>
+                            <td>${aylik.projeSayisi || 0}</td>
+                            <td>${toplamMaliyet.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'})}</td>
+                            <td>${ortalamaMaliyet.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'})}</td>
+                        </tr>
+                    `;
+                });
+    
+                // Aşama dağılımı tablosu oluştur
+                let asamaHTML = '';
+                asamaData.forEach(asama => {
+                    const yuzde = asama.yuzde || 0;
+                    const asamaAdi = asama.asamaAdi || 'Belirtilmemiş';
+                    const projeSayisi = asama.projeSayisi || 0;
+                    asamaHTML += `
+                        <tr>
+                            <td>${asamaAdi}</td>
+                            <td>${projeSayisi}</td>
+                            <td>${yuzde.toFixed(1)}%</td>
+                        </tr>
+                    `;
+                });
+    
+                // Proje listesi oluştur
+                let projeHTML = '';
+                tumProjeler.forEach((proje, index) => {
+                    const durumText = proje.durum === 1 ? 'Onay Bekliyor' : 
+                                     proje.durum === 2 ? 'Planlama' : 
+                                     proje.durum === 3 ? 'Devam Ediyor' : 
+                                     proje.durum === 4 ? 'Tamamlandı' : 
+                                     proje.durum === 5 ? 'İptal Edildi' : 'Bilinmiyor';
+                    
+                    const projeId = proje.projeID || proje.id || (index + 1);
+                    const projeAd = proje.projeAd || 'Belirtilmemiş';
+                    const mudurluk = proje.mudurluk || 'Belirtilmemiş';
+
+
+
+
+                    const departman = proje.departman || '-';
+                    // Güvenli tarih formatlaması
+                    const formatDate = (dateStr) => {
+                        if (!dateStr || dateStr === null || dateStr === undefined || dateStr === '') {
+                            return '-';
+                        }
+                        
+                        try {
+                            let date;
+                            
+                            // Farklı tarih formatlarını dene
+                            if (typeof dateStr === 'string') {
+                                // ISO format (2025-01-31T00:00:00)
+                                if (dateStr.includes('T')) {
+                                    date = new Date(dateStr);
+                                }
+                                // Sadece tarih kısmı (2025-01-31)
+                                else if (dateStr.includes('-')) {
+                                    date = new Date(dateStr + 'T00:00:00');
+                                }
+                                // Diğer formatlar
+                                else {
+                                    date = new Date(dateStr);
+                                }
+                            } else {
+                                date = new Date(dateStr);
+                            }
+                            
+                            if (isNaN(date.getTime())) {
+                                return '-';
+                            }
+                            
+                            return date.toLocaleDateString('tr-TR');
+                        } catch (e) {
+                            return '-';
+                        }
+                    };
+                    
+                    const baslangicTarihi = formatDate(proje.baslangicTarihi);
+                    const bitisTarihi = formatDate(proje.bitisTarihi);
+                    const maliyet = proje.maliyet ? proje.maliyet.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'}) : '-';
+                    
+                    projeHTML += `
+                        <tr>
+                            <td>${projeId}</td>
+                            <td>${projeAd}</td>
+                            <td>${mudurluk}</td>
+                            <td>${departman}</td>
+                            <td>${durumText}</td>
+                            <td>${baslangicTarihi}</td>
+                            <td>${bitisTarihi}</td>
+                            <td>${maliyet}</td>
+                        </tr>
+                    `;
+                });
+    
+                // Özet istatistikleri backend'den al
+                const toplamProje = genelIstatistikler.toplamProje || 0;
+                const toplamMaliyet = genelIstatistikler.toplamMaliyet || 0;
+                const aktifProje = genelIstatistikler.aktifProje || 0;
+                const tamamlananProje = genelIstatistikler.tamamlananProje || 0;
+    
+    const printWindow = window.open('', '_blank');
+    const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Proje Takip Sistemi - Kapsamlı Rapor</title>
+            <meta charset="utf-8">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; color: black; background: white; padding: 15px; }
+                h1 { font-size: 18px; margin: 15px 0; text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
+                h2 { font-size: 14px; margin: 12px 0 8px 0; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 3px; }
+                .header { text-align: center; margin-bottom: 20px; }
+                .section { margin: 15px 0; page-break-inside: avoid; }
+                table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11px; }
+                th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+                th { background-color: #f8f9fa; font-weight: bold; }
+                tr:nth-child(even) { background-color: #f9f9f9; }
+                .footer { margin-top: 20px; text-align: center; font-size: 10px; color: #6c757d; border-top: 1px solid #ddd; padding-top: 10px; }
+                .summary-stats { display: flex; justify-content: space-around; margin: 15px 0; }
+                .stat-box { text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+                .stat-number { font-size: 16px; font-weight: bold; color: #007bff; }
+                .stat-label { font-size: 10px; color: #666; }
+                @@media print {
+                     body { padding: 10px; }
+                     .section { page-break-inside: avoid; }
+                 }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>PROJE TAKİP SİSTEMİ - ${raporBasligi}</h1>
+                <p>Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')}</p>
+                <p>Rapor Saati: ${new Date().toLocaleTimeString('tr-TR')}</p>
+            </div>
+            
+            <div class="summary-stats">
+                <div class="stat-box">
+                    <div class="stat-number">${toplamProje}</div>
+                    <div class="stat-label">Toplam Proje</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">${aktifProje}</div>
+                    <div class="stat-label">Aktif Proje</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">${tamamlananProje}</div>
+                    <div class="stat-label">Tamamlanan Proje</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">${toplamMaliyet.toLocaleString('tr-TR')}</div>
+                    <div class="stat-label">Toplam Bütçe (TL)</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>1. MÜDÜRLÜK BAZINDA İSTATİSTİKLER</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Müdürlük</th>
+                            <th>Toplam Proje</th>
+                            <th>Aktif Proje</th>
+                            <th>Tamamlanan</th>
+                            <th>Toplam Maliyet</th>
+                            <th>Başarı Oranı</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${mudurlukHTML}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>2. DEPARTMAN BAZINDA İSTATİSTİKLER</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Departman</th>
+                            <th>Proje Sayısı</th>
+                            <th>Toplam Maliyet</th>
+                            <th>Ortalama Maliyet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${departmanHTML}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>3. AYLIK DAĞILIM</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ay</th>
+                            <th>Proje Sayısı</th>
+                            <th>Toplam Maliyet</th>
+                            <th>Ortalama Maliyet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${aylikHTML}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>4. PROJE AŞAMA DAĞILIMI</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aşama</th>
+                            <th>Proje Sayısı</th>
+                            <th>Yüzde Oranı</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${asamaHTML}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>5. DETAYLI PROJE LİSTESİ</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Proje ID</th>
+                            <th>Proje Adı</th>
+                            <th>Müdürlük</th>
+                            <th>Departman</th>
+                            <th>Durum</th>
+                            <th>Başlangıç</th>
+                            <th>Bitiş</th>
+                            <th>Maliyet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${projeHTML}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="footer">
+                <p>Bu rapor ${new Date().toLocaleDateString('tr-TR')} tarihinde Proje Takip Yönetim Sistemi tarafından otomatik olarak oluşturulmuştur.</p>
+                <p>Sistem: Proje Takip Yönetim Sistemi | Sayfa: 1</p>
+            </div>
+        </body>
+        </html>
+    `;
+    
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.focus();
+                
+                console.log('Print penceresi açıldı');
+                
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                    console.log('Print işlemi tamamlandı');
+                }, 250);
+                
+            } catch (error) {
+                console.error('Print Report hatası:', error);
+                alert('Rapor yazdırılırken hata oluştu: ' + error.message);
+            }
+        }
+        
+
+        
+
+        
+
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kısa bir gecikme ile DOM'un tamamen yüklenmesini bekle
+            setTimeout(function() {
+                const reportFilter = document.getElementById('reportFilter');
+                const searchInput = document.getElementById('searchInput');
+                const sortBy = document.getElementById('sortBy');
+
+                if (reportFilter) {
+                    reportFilter.addEventListener('change', function() {
+                        filterReports();
+                    });
+                }
+                
+                if (searchInput) {
+                    searchInput.addEventListener('input', function() {
+                        filterReports();
+                    });
+                }
+                
+                if (sortBy) {
+                    sortBy.addEventListener('change', function() {
+                        filterReports();
+                    });
+                }
+
+                // Başlangıçta müdürlük raporunu göster
+                filterReports();
+            }, 100);
+        });
+    </script>
+}
+
+<style>
+.statistics-section {
+    transition: all 0.3s ease;
+    display: none !important; /* Başlangıçta tüm section'ları gizle */
+}
+
+.statistics-section.active {
+    display: block !important; /* Aktif section'ı göster */
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.shadow-modern {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+}
+
+.empty-state {
+    padding: 2rem;
+}
+</style>

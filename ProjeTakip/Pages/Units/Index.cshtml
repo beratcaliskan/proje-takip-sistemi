@@ -1,0 +1,374 @@
+@page
+@model ProjeTakip.Pages.Units.IndexModel
+@{
+    ViewData["Title"] = "Birimler";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header border-0 bg-white" style="padding: 2rem;">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-2 fw-bold text-dark">Birim Arama ve Filtreleme</h4>
+                            <p class="text-muted mb-0">Aradığınız birimi kolayca bulun</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addBirimModal">
+                                <i class="fas fa-plus me-2"></i>Yeni Birim Ekle
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6 mb-3">
+                            <div class="position-relative">
+                                <input type="text" id="searchInput" placeholder="Birim adı ara..." class="form-control form-control-lg" style="padding-left: 3rem;">
+                                <div class="position-absolute top-50 start-0 translate-middle-y ps-3">
+                                    <i class="fas fa-search text-muted"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <select id="statusFilter" class="form-select form-select-lg">
+                                        <option value="">Tüm Durumlar</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <select id="sortSelect" class="form-select form-select-lg">
+                                        <option value="" selected>Sıralama Seçin</option>
+                                        <option value="name-asc">İsim (A-Z)</option>
+                                        <option value="name-desc">İsim (Z-A)</option>
+                                        <option value="id-asc">ID (Küçükten Büyüğe)</option>
+                                        <option value="id-desc">ID (Büyükten Küçüğe)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+
+                    @if (Model.Birimler.Any())
+                    {
+                        <div class="table-responsive">
+                            <table id="birimTable" class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-4 py-3 fw-bold text-center" style="width: 33.33%;">ID</th>
+                                        <th class="px-4 py-3 fw-bold text-center" style="width: 33.33%;">Birim Adı</th>
+                                        <th class="px-4 py-3 fw-bold text-center" style="width: 33.33%;">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var birim in Model.Birimler)
+                                    {
+                                        <tr>
+                                            <td class="px-4 py-3 fw-semibold text-center" style="color: #1f2937;">#@birim.id</td>
+                                            <td class="px-4 py-3 fw-semibold" style="color: #1f2937;">@birim.BirimAd</td>
+                                            <td class="px-4 py-3">
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-info" onclick="viewBirim(@birim.id)">
+                                                        <i class="fas fa-eye me-1"></i>Detay
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-warning" onclick="editBirim(@birim.id)">
+                                                        <i class="fas fa-edit me-1"></i>Düzenle
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-danger" onclick="deleteBirim(@birim.id, '@birim.BirimAd')">
+                                                        <i class="fas fa-trash me-1"></i>Sil
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                                <i class="fas fa-sitemap" style="font-size: 2rem; color: #6c757d;"></i>
+                            </div>
+                            <h3 class="mt-4 fw-bold text-dark">Henüz birim bulunmamaktadır</h3>
+                            <p class="mt-2 text-muted">Başlamak için yeni bir birim ekleyin ve birimlerinizi yönetmeye başlayın.</p>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addBirimModal">
+                                    <i class="fas fa-plus me-2"></i>Yeni Birim Ekle
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Birim Ekleme Modal -->
+<div class="modal fade" id="addBirimModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Add">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus text-primary me-2"></i>
+                        Yeni Birim Ekle
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label asp-for="YeniBirim.BirimAd" class="form-label">Birim Adı</label>
+                        <input asp-for="YeniBirim.BirimAd" class="form-control" placeholder="Birim adını giriniz" required>
+                        <span asp-validation-for="YeniBirim.BirimAd" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Birim Görüntüleme Modal -->
+<div class="modal fade" id="viewBirimModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye text-info me-2"></i>
+                    Birim Detayları
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-4"><strong>ID:</strong></div>
+                    <div class="col-sm-8" id="viewBirimId"></div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4"><strong>Birim Adı:</strong></div>
+                    <div class="col-sm-8" id="viewBirimAd"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Birim Düzenleme Modal -->
+<div class="modal fade" id="editBirimModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Edit">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit text-warning me-2"></i>
+                        Birim Düzenle
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input asp-for="DuzenlenecekBirim.id" type="hidden">
+                    <div class="mb-3">
+                        <label asp-for="DuzenlenecekBirim.BirimAd" class="form-label">Birim Adı</label>
+                        <input asp-for="DuzenlenecekBirim.BirimAd" class="form-control" placeholder="Birim adını giriniz" required>
+                        <span asp-validation-for="DuzenlenecekBirim.BirimAd" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save me-1"></i>
+                        Güncelle
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Türkçe karakter normalizasyonu
+        function normalizeText(text) {
+            const turkishChars = {
+                'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u',
+                'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U'
+            };
+            return text.replace(/[çğıöşüÇĞİÖŞÜ]/g, function(match) {
+                return turkishChars[match] || match;
+            });
+        }
+
+        // Filtreleme fonksiyonu
+        function filterTable() {
+            const searchTerm = normalizeText(document.getElementById('searchInput').value.toLowerCase());
+            const statusFilter = document.getElementById('statusFilter').value;
+            const table = document.getElementById('birimTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let visibleCount = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.cells.length < 3) continue; // "Birim bulunamadı" satırını atla
+
+                const birimAd = normalizeText(row.cells[1].textContent.toLowerCase());
+                const id = normalizeText(row.cells[0].textContent.toLowerCase());
+
+                const matchesSearch = birimAd.includes(searchTerm) || id.includes(searchTerm);
+                const matchesStatus = statusFilter === '' || true; // Şimdilik tüm durumları göster
+
+                if (matchesSearch && matchesStatus) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+
+            updateResultCount(visibleCount);
+        }
+
+        // Sonuç sayısını güncelle
+        function updateResultCount(visibleCount) {
+            const totalCount = @Model.Birimler.Count;
+            document.getElementById('resultCount').textContent = totalCount + ' birim';
+            document.getElementById('resultText').textContent = visibleCount + ' tanesi gösteriliyor';
+        }
+
+        // Sıralama fonksiyonu
+        function sortTable() {
+            const sortValue = document.getElementById('sortSelect').value;
+            const table = document.getElementById('birimTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+
+            // "Birim bulunamadı" satırını filtrele
+            const dataRows = rows.filter(row => row.cells.length >= 3);
+
+            dataRows.sort((a, b) => {
+                let aValue, bValue;
+
+                switch (sortValue) {
+                    case 'name-asc':
+                        aValue = a.cells[1].textContent.toLowerCase();
+                        bValue = b.cells[1].textContent.toLowerCase();
+                        return aValue.localeCompare(bValue, 'tr');
+                    case 'name-desc':
+                        aValue = a.cells[1].textContent.toLowerCase();
+                        bValue = b.cells[1].textContent.toLowerCase();
+                        return bValue.localeCompare(aValue, 'tr');
+                    case 'id-asc':
+                        aValue = parseInt(a.cells[0].textContent.replace('#', ''));
+                        bValue = parseInt(b.cells[0].textContent.replace('#', ''));
+                        return aValue - bValue;
+                    case 'id-desc':
+                        aValue = parseInt(a.cells[0].textContent.replace('#', ''));
+                        bValue = parseInt(b.cells[0].textContent.replace('#', ''));
+                        return bValue - aValue;
+                    default:
+                        return 0;
+                }
+            });
+
+            // Sıralanmış satırları tabloya geri ekle
+            dataRows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Filtreleri temizle
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('sortSelect').value = 'name-asc';
+            filterTable();
+        }
+
+        // Birim görüntüle
+        async function viewBirim(id) {
+            try {
+                const response = await fetch(`?handler=Birim&id=${id}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('viewBirimId').textContent = '#' + data.id;
+                    document.getElementById('viewBirimAd').textContent = data.birimAd;
+                    new bootstrap.Modal(document.getElementById('viewBirimModal')).show();
+                } else {
+                    alert('Birim bilgileri alınamadı.');
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+                alert('Bir hata oluştu.');
+            }
+        }
+
+        // Birim düzenle
+        async function editBirim(id) {
+            try {
+                const response = await fetch(`?handler=Birim&id=${id}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.querySelector('input[name="DuzenlenecekBirim.id"]').value = data.id;
+                    document.querySelector('input[name="DuzenlenecekBirim.BirimAd"]').value = data.birimAd;
+                    new bootstrap.Modal(document.getElementById('editBirimModal')).show();
+                } else {
+                    alert('Birim bilgileri alınamadı.');
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+                alert('Bir hata oluştu.');
+            }
+        }
+
+        // Birim sil
+        function deleteBirim(id, birimAd) {
+            if (confirm(`"${birimAd}" adlı birimi silmek istediğinizden emin misiniz?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '?handler=Delete';
+
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = id;
+
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                form.appendChild(idInput);
+                form.appendChild(tokenInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('input', filterTable);
+            document.getElementById('statusFilter').addEventListener('change', filterTable);
+            document.getElementById('sortSelect').addEventListener('change', sortTable);
+
+            // İlk yüklemede sonuç sayısını güncelle
+            updateResultCount(@Model.Birimler.Count);
+        });
+    </script>
+}

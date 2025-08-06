@@ -22,6 +22,18 @@ namespace ProjeTakip.Data
                 .WithMany(p => p.GanttAsamalari)
                 .HasForeignKey(g => g.ProjeID);
 
+            // İlerleme - Proje ilişkisi
+            modelBuilder.Entity<Ilerleme>()
+                .HasOne(i => i.Proje)
+                .WithMany()
+                .HasForeignKey(i => i.ProjeID);
+
+            // İlerleme - Gantt ilişkisi
+            modelBuilder.Entity<Ilerleme>()
+                .HasOne(i => i.GanttAsama)
+                .WithMany()
+                .HasForeignKey(i => i.GanttID);
+
             base.OnModelCreating(modelBuilder);
         }
     }

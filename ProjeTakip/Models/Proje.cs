@@ -21,5 +21,22 @@ namespace ProjeTakip.Models
         public int personel { get; set; }
 
         public ICollection<Gantt>? GanttAsamalari { get; set; }
+        
+        // Computed properties for reports
+        public string DurumAdi => Durum switch
+        {
+            1 => "Onay Bekliyor",
+            2 => "Planlama",
+            3 => "Devam Ediyor",
+            4 => "Tamamlandı",
+            5 => "İptal Edildi",
+            _ => "Bilinmiyor"
+        };
+        
+        public string MaliyetFormatli => Maliyet?.ToString("C", new System.Globalization.CultureInfo("tr-TR")) ?? "Belirtilmemiş";
+        
+        public string BaslangicTarihi => bas?.ToString("dd.MM.yyyy") ?? "Belirtilmemiş";
+        
+        public string BitisTarihi => bit?.ToString("dd.MM.yyyy") ?? "Belirtilmemiş";
     }
 }

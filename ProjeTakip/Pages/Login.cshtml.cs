@@ -17,8 +17,8 @@ namespace ProjeTakip.Pages
         }
 
         [BindProperty]
-        [Required(ErrorMessage = "Kimlik numarası gereklidir.")]
-        [Display(Name = "Personel Kimlik No")]
+        [Required(ErrorMessage = "Kullanıcı ID gereklidir.")]
+        [Display(Name = "Kullanıcı ID")]
         public string Kimlik { get; set; } = string.Empty;
 
         public string ErrorMessage { get; set; } = string.Empty;
@@ -31,8 +31,15 @@ namespace ProjeTakip.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // AJAX isteği kontrolü
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            
             if (!ModelState.IsValid)
             {
+                if (isAjax)
+                {
+                    return new JsonResult(new { success = false, message = "Lütfen kullanıcı ID'nizi giriniz." });
+                }
                 return Page();
             }
 
@@ -44,7 +51,12 @@ namespace ProjeTakip.Pages
 
                 if (kullanici == null)
                 {
-                    ErrorMessage = "Girilen kimlik numarası sistemde bulunamadı. Lütfen doğru kimlik numarasını giriniz.";
+                    var errorMsg = "Girilen kullanıcı ID sistemde bulunamadı. Lütfen doğru kullanıcı ID'nizi giriniz.";
+                    if (isAjax)
+                    {
+                        return new JsonResult(new { success = false, message = errorMsg });
+                    }
+                    ErrorMessage = errorMsg;
                     return Page();
                 }
 
@@ -54,12 +66,22 @@ namespace ProjeTakip.Pages
                 HttpContext.Session.SetString("UserKimlik", kullanici.Kimlik);
                 HttpContext.Session.SetInt32("UserRole", kullanici.Rol);
 
+                if (isAjax)
+                {
+                    return new JsonResult(new { success = true, message = "Giriş başarılı. Yönlendiriliyorsunuz...", redirectUrl = "/Index" });
+                }
+
                 // Ana sayfaya yönlendir
                 return RedirectToPage("/Index");
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Giriş işlemi sırasında bir hata oluştu. Lütfen tekrar deneyiniz.";
+                var errorMsg = "Giriş işlemi sırasında bir hata oluştu. Lütfen tekrar deneyiniz.";
+                if (isAjax)
+                {
+                    return new JsonResult(new { success = false, message = errorMsg });
+                }
+                ErrorMessage = errorMsg;
                 // Log the exception (in a real application)
                 return Page();
             }

@@ -5,43 +5,265 @@
     Layout = "_Layout";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card login-card">
-                <div class="card-header text-center">
-                    <h4>Proje Takip Sistemi</h4>
-                    <p>Personel kimliğinizi girerek giriş yapın</p>
-                </div>
-                <div class="card-body">
-                    <form method="post">
+<!-- Modern Login Page -->
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 col-sm-9">
+                <!-- Login Card -->
+                <div class="card shadow-modern border-0 fade-in">
+                    <!-- Card Header -->
+                    <div class="card-header text-center border-0 bg-transparent py-4">
                         <div class="mb-3">
-                            <label for="Kimlik" class="form-label">Personel Kimlik Numarası</label>
-                            <input asp-for="Kimlik" class="form-control" 
-                                   placeholder="Personel Kimlik Numarası" required>
-                            <span asp-validation-for="Kimlik" class="text-danger"></span>
-                        </div>
-                        
-                        @if (!string.IsNullOrEmpty(ViewData["ErrorMessage"] as string))
-                        {
-                            <div class="alert alert-danger" role="alert">
-                                @ViewData["ErrorMessage"]
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-gradient" style="width: 80px; height: 80px;">
+                                <i class="fas fa-project-diagram text-white" style="font-size: 2rem;"></i>
                             </div>
-                        }
-                        
-                        <button type="submit" class="btn btn-primary w-100">
-                            Giriş Yap
-                        </button>
-                    </form>
+                        </div>
+                        <h2 class="text-gradient mb-2">Proje Takip Sistemi</h2>
+                        <p class="text-muted mb-0">Hesabınıza giriş yapın</p>
+                    </div>
+                    
+                    <!-- Card Body -->
+                    <div class="card-body px-4 pb-4">
+                        <form id="loginForm" method="post" class="needs-validation" novalidate>
+                            @Html.AntiForgeryToken()
+                            
+                            <!-- User ID Input -->
+                            <div class="mb-4">
+                                <label for="Kimlik" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-primary"></i>Kullanıcı ID
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-id-card text-muted"></i>
+                                    </span>
+                                    <input asp-for="Kimlik" 
+                                           class="form-control form-control-lg border-start-0 ps-0" 
+                                           placeholder="Kullanıcı ID'nizi giriniz" 
+                                           required
+                                           style="box-shadow: none;">
+                                </div>
+                                <span asp-validation-for="Kimlik" class="text-danger small"></span>
+                            </div>
+                            
+                            <!-- Error Message -->
+                            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                            {
+                                <div class="alert alert-danger border-0 rounded-modern mb-4" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    @Model.ErrorMessage
+                                </div>
+                            }
+                            
+                            <!-- Login Button -->
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" id="loginButton">
+                                <span id="loginButtonText">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                                </span>
+                                <span id="loginSpinner" class="d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Giriş yapılıyor...
+                                </span>
+                            </button>
+                            
+                            <!-- Demo Users Info -->
+                            <div class="text-center">
+                                <small class="text-muted">
+                                    <strong>Demo Kullanıcılar:</strong> admin, test, dev
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Card Footer -->
+                    <div class="card-footer bg-transparent border-0 text-center py-3">
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Güvenli giriş sistemi
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Features Cards -->
+                <div class="row mt-4 g-3">
+                    <div class="col-4">
+                        <div class="card border-0 bg-transparent text-center">
+                            <div class="card-body py-3">
+                                <i class="fas fa-tasks text-white mb-2" style="font-size: 1.5rem;"></i>
+                                <small class="text-white d-block">Proje Yönetimi</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card border-0 bg-transparent text-center">
+                            <div class="card-body py-3">
+                                <i class="fas fa-chart-line text-white mb-2" style="font-size: 1.5rem;"></i>
+                                <small class="text-white d-block">Raporlama</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card border-0 bg-transparent text-center">
+                            <div class="card-body py-3">
+                                <i class="fas fa-users text-white mb-2" style="font-size: 1.5rem;"></i>
+                                <small class="text-white d-block">Takım Çalışması</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Custom Styles -->
 <style>
-    .login-card {
-        max-width: 400px;
-        margin: 0 auto;
+    .input-group-text {
+        background-color: var(--bg-secondary);
+        border-color: var(--border-color);
+    }
+    
+    .form-control:focus + .input-group-text,
+    .input-group-text + .form-control:focus {
+        border-color: var(--primary-color);
+    }
+    
+    .bg-gradient {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    }
+    
+    .min-vh-100 {
+        min-height: 100vh;
+    }
+    
+    @@media (max-width: 768px) {
+        .card {
+            margin: 1rem;
+        }
     }
 </style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Login form AJAX submission
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                var form = this;
+                var formData = new FormData(form);
+                var loginButton = document.getElementById('loginButton');
+                var loginButtonText = document.getElementById('loginButtonText');
+                var loginSpinner = document.getElementById('loginSpinner');
+                
+                // Disable button and show spinner
+                loginButton.disabled = true;
+                loginButtonText.classList.add('d-none');
+                loginSpinner.classList.remove('d-none');
+                
+                fetch(form.action || window.location.pathname, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        throw new Error('Unexpected response format');
+                    }
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        setTimeout(() => {
+                            window.location.href = data.redirectUrl || '/Index';
+                        }, 1000);
+                    } else {
+                        showToast(data.message, 'error');
+                        // Re-enable button
+                        loginButton.disabled = false;
+                        loginButtonText.classList.remove('d-none');
+                        loginSpinner.classList.add('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Giriş işlemi sırasında bir hata oluştu. Lütfen tekrar deneyiniz.', 'error');
+                    // Re-enable button
+                    loginButton.disabled = false;
+                    loginButtonText.classList.remove('d-none');
+                    loginSpinner.classList.add('d-none');
+                });
+            });
+        });
+        
+        // Toast container oluştur
+        function createToastContainer() {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                container.style.zIndex = '1055';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast mesaj gösterme fonksiyonu
+        function showToast(message, type) {
+            var container = createToastContainer();
+            
+            // Aynı mesajın zaten gösterilip gösterilmediğini kontrol et
+            var existingToasts = container.querySelectorAll('.toast');
+            for (var i = 0; i < existingToasts.length; i++) {
+                var existingMessage = existingToasts[i].querySelector('.toast-body').textContent.trim();
+                if (existingMessage === message) {
+                    return; // Aynı mesaj zaten gösteriliyor, yeni toast ekleme
+                }
+            }
+            
+            // Maksimum 3 toast'a izin ver, fazlasını kaldır
+            if (existingToasts.length >= 3) {
+                var oldestToast = existingToasts[0];
+                if (oldestToast.parentNode) {
+                    oldestToast.parentNode.removeChild(oldestToast);
+                }
+            }
+            
+            var toastClass = type === 'success' ? 'bg-success' : 'bg-danger';
+            var toastHtml = `
+                <div class="toast align-items-center text-white ${toastClass} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', toastHtml);
+            
+            // Toast'ı göster
+            var toastElement = container.lastElementChild;
+            var toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 4000
+            });
+            
+            toast.show();
+            
+            // Toast kapandığında DOM'dan kaldır
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                if (toastElement.parentNode) {
+                    toastElement.parentNode.removeChild(toastElement);
+                }
+            });
+        }
+    </script>
+}
