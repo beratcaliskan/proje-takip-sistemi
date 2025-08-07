@@ -11,9 +11,11 @@ namespace ProjeTakip.Models
         public int TamamlanmaYuzdesi { get; set; }
         public DateTime IlerlemeTarihi { get; set; }
         public string? Aciklama { get; set; }
+        public int? KullaniciID { get; set; } // Kim ekledi
         
         // Navigation properties
         public Proje? Proje { get; set; }
         public Gantt? GanttAsama { get; set; }
+        public Kullanici? EkleyenKullanici { get; set; }
     }
 }

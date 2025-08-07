@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjeTakip.Data;
 
@@ -11,9 +12,11 @@ using ProjeTakip.Data;
 namespace ProjeTakip.Migrations
 {
     [DbContext(typeof(ProjeTakipContext))]
-    partial class ProjeTakipContextModelSnapshot : ModelSnapshot
+    [Migration("20250807082305_AddBirimIdToProje")]
+    partial class AddBirimIdToProje
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,9 +97,6 @@ namespace ProjeTakip.Migrations
                     b.Property<DateTime>("IlerlemeTarihi")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("KullaniciID")
-                        .HasColumnType("int");
-
                     b.Property<int>("ProjeID")
                         .HasColumnType("int");
 
@@ -106,8 +106,6 @@ namespace ProjeTakip.Migrations
                     b.HasKey("id");
 
                     b.HasIndex("GanttID");
-
-                    b.HasIndex("KullaniciID");
 
                     b.HasIndex("ProjeID");
 
@@ -236,17 +234,11 @@ namespace ProjeTakip.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProjeTakip.Models.Kullanici", "EkleyenKullanici")
-                        .WithMany()
-                        .HasForeignKey("KullaniciID");
-
                     b.HasOne("ProjeTakip.Models.Proje", "Proje")
                         .WithMany()
                         .HasForeignKey("ProjeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("EkleyenKullanici");
 
                     b.Navigation("GanttAsama");
 

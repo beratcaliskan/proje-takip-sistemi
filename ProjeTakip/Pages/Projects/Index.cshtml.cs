@@ -22,6 +22,8 @@ namespace ProjeTakip.Pages.Projects
         public string SuccessMessage { get; set; } = string.Empty;
         
         public List<Proje> Projeler { get; set; } = new List<Proje>();
+        public List<Proje> ProjeListe { get; set; } = new List<Proje>();
+        public List<Birim> Birimler { get; set; } = new List<Birim>();
 
         // İstatistik verileri
         public List<MudurlukIstatistik> MudurlukIstatistikleri { get; set; } = new();
@@ -51,6 +53,7 @@ namespace ProjeTakip.Pages.Projects
             [StringLength(100, MinimumLength = 2, ErrorMessage = "Başkanlık 2-100 karakter arasında olmalıdır.")]
             public string Baskanlik { get; set; } = string.Empty;
 
+            public int? BirimId { get; set; }
             public string? Amac { get; set; }
             public string? Kapsam { get; set; }
             public decimal? Maliyet { get; set; }
@@ -85,6 +88,7 @@ namespace ProjeTakip.Pages.Projects
             [StringLength(100, MinimumLength = 2, ErrorMessage = "Başkanlık 2-100 karakter arasında olmalıdır.")]
             public string Baskanlik { get; set; } = string.Empty;
 
+            public int? BirimId { get; set; }
             public string? Amac { get; set; }
             public string? Kapsam { get; set; }
             public decimal? Maliyet { get; set; }
@@ -115,6 +119,8 @@ namespace ProjeTakip.Pages.Projects
             try
             {
                 Projeler = await _context.Projeler.ToListAsync();
+                ProjeListe = Projeler; // ProjeListe'yi de doldur
+                Birimler = await _context.Birimler.ToListAsync();
                 
                 // İstatistik verilerini yükle
                 await LoadStatisticsAsync();
@@ -238,6 +244,7 @@ namespace ProjeTakip.Pages.Projects
                     ProjeAd = AddProject.ProjeAd,
                     Mudurluk = AddProject.Mudurluk,
                     Baskanlik = AddProject.Baskanlik,
+                    BirimId = AddProject.BirimId,
                     Amac = AddProject.Amac,
                     Kapsam = AddProject.Kapsam,
                     Maliyet = AddProject.Maliyet,
@@ -351,6 +358,7 @@ namespace ProjeTakip.Pages.Projects
                 proje.ProjeAd = EditProject.ProjeAd;
                 proje.Mudurluk = EditProject.Mudurluk;
                 proje.Baskanlik = EditProject.Baskanlik;
+                proje.BirimId = EditProject.BirimId;
                 proje.Amac = EditProject.Amac;
                 proje.Kapsam = EditProject.Kapsam;
                 proje.Maliyet = EditProject.Maliyet;
@@ -464,12 +472,51 @@ namespace ProjeTakip.Pages.Projects
             }
         }
 
+        // Proje verilerini getir
+        public async Task<IActionResult> OnGetProjectDataAsync(int projectId)
+        {
+            try
+            {
+                var proje = await _context.Projeler.FindAsync(projectId);
+                
+                if (proje == null)
+                {
+                    return new JsonResult(new { success = false, message = "Proje bulunamadı." });
+                }
+
+                var projectData = new {
+                    projeID = proje.ProjeID,
+                    projeAd = proje.ProjeAd,
+                    mudurluk = proje.Mudurluk,
+                    baskanlik = proje.Baskanlik,
+                    birimId = proje.BirimId,
+                    amac = proje.Amac,
+                    kapsam = proje.Kapsam,
+                    maliyet = proje.Maliyet,
+                    ekip = proje.Ekip,
+                    bas = proje.bas?.ToString("yyyy-MM-dd"),
+                    bit = proje.bit?.ToString("yyyy-MM-dd"),
+                    olcut = proje.olcut,
+                    sponsor = proje.sponsor,
+                    durum = proje.Durum,
+                    personel = proje.personel
+                };
+
+                return new JsonResult(new { success = true, data = projectData });
+            }
+            catch
+            {
+                return new JsonResult(new { success = false, message = "Proje verileri alınırken bir hata oluştu." });
+            }
+        }
+
         public async Task<IActionResult> OnGetProjectProgressAsync(int projectId)
         {
             try
             {
                 var progressList = await _context.Ilerlemeler
                     .Include(i => i.GanttAsama)
+                    .Include(i => i.EkleyenKullanici)
                     .Where(i => i.ProjeID == projectId)
                     .OrderByDescending(i => i.IlerlemeTarihi)
                     .Select(i => new {
@@ -477,7 +524,8 @@ namespace ProjeTakip.Pages.Projects
                         ganttAsama = i.GanttAsama != null ? i.GanttAsama.Asama : "Tanımsız",
                         ilerleme = i.IlerlemeTanimi,
                         yuzde = i.TamamlanmaYuzdesi,
-                        tarih = i.IlerlemeTarihi.ToString("dd.MM.yyyy")
+                        tarih = i.IlerlemeTarihi.ToString("dd.MM.yyyy"),
+                        ekleyenKullanici = i.EkleyenKullanici != null ? i.EkleyenKullanici.AdSoyad : "Bilinmiyor"
                     })
                     .ToListAsync();
 
@@ -486,6 +534,59 @@ namespace ProjeTakip.Pages.Projects
             catch (Exception ex)
             {
                 return new JsonResult(new { success = false, message = ex.Message });
+            }
+        }
+
+        // İlerleme verilerini getir
+        public async Task<IActionResult> OnGetGetProgressAsync(int id)
+        {
+            try
+            {
+                var ilerleme = await _context.Ilerlemeler
+                    .Include(i => i.GanttAsama)
+                    .FirstOrDefaultAsync(i => i.id == id);
+                
+                if (ilerleme == null)
+                {
+                    return new JsonResult(new { success = false, message = "İlerleme bulunamadı." });
+                }
+
+                var progressData = new {
+                    id = ilerleme.id,
+                    projeId = ilerleme.ProjeID,
+                    ganttId = ilerleme.GanttID,
+                    ilerleme = ilerleme.IlerlemeTanimi,
+                    yuzde = ilerleme.TamamlanmaYuzdesi,
+                    aciklama = ilerleme.Aciklama
+                };
+
+                return new JsonResult(new { success = true, data = progressData });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = "İlerleme verileri alınırken bir hata oluştu: " + ex.Message });
+            }
+        }
+
+        // Gantt aşamalarını getir
+        public async Task<IActionResult> OnGetGanttStagesAsync(int projeId)
+        {
+            try
+            {
+                var ganttStages = await _context.GanttAsamalari
+                    .Where(g => g.ProjeID == projeId)
+                    .OrderBy(g => g.Sira)
+                    .Select(g => new {
+                        id = g.id,
+                        asama = g.Asama
+                    })
+                    .ToListAsync();
+
+                return new JsonResult(new { success = true, stages = ganttStages });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = "Gantt aşamaları alınırken bir hata oluştu: " + ex.Message });
             }
         }
     }

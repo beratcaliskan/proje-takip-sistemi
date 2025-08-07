@@ -56,13 +56,14 @@
                                 <table class="table table-hover align-middle">
                                     <thead class="table-dark">
                                         <tr class="text-center">
-                                            <th style="width: 8%;">ID</th>
-                                            <th style="width: 15%;">Proje</th>
-                                            <th style="width: 15%;">Gantt Aşama</th>
-                                            <th style="width: 20%;">İlerleme</th>
-                                            <th style="width: 10%;">%</th>
-                                            <th style="width: 12%;">Tarih</th>
-                                            <th style="width: 20%;">İşlemler</th>
+                                            <th style="width: 6%;">ID</th>
+                                            <th style="width: 12%;">Proje</th>
+                                            <th style="width: 12%;">Gantt Aşama</th>
+                                            <th style="width: 18%;">İlerleme</th>
+                                            <th style="width: 8%;">%</th>
+                                            <th style="width: 10%;">Tarih</th>
+                                            <th style="width: 12%;">Kim Ekledi</th>
+                                            <th style="width: 22%;">İşlemler</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ileremeTableBody">
@@ -79,6 +80,9 @@
                                                         <span class="badge bg-primary">@ilerleme.TamamlanmaYuzdesi%</span>
                                                     </td>
                                                     <td>@ilerleme.IlerlemeTarihi.ToString("dd.MM.yyyy")</td>
+                                                    <td>
+                                                        <span class="badge bg-info">@(ilerleme.EkleyenKullanici?.AdSoyad ?? "Bilinmiyor")</span>
+                                                    </td>
                                                     <td>
                                                         <div class="d-flex gap-2 justify-content-center">
                                                             <button type="button" class="btn btn-sm btn-warning" 
@@ -97,7 +101,7 @@
                                         else
                                         {
                                             <tr>
-                                                <td colspan="7" class="text-center text-muted py-4">
+                                                <td colspan="8" class="text-center text-muted py-4">
                                                     <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
                                                     Henüz ilerleme kaydı bulunmamaktadır.
                                                 </td>
@@ -580,7 +584,10 @@
         // İlerleme düzenleme fonksiyonu
         function editIlerleme(id, projeId, ganttId, ilerlemeTanimi, tamamlanmaYuzdesi, aciklama) {
             document.getElementById('EditIlerleme_id').value = id;
-            document.getElementById('EditIlerleme_projeId').value = projeId;
+            
+            // Select2 elementleri için özel işlem
+            $('#EditIlerleme_projeId').val(projeId).trigger('change');
+            
             document.getElementById('EditIlerleme_ilerlemeTanimi').value = ilerlemeTanimi;
             document.getElementById('EditIlerleme_tamamlanmaYuzdesi').value = tamamlanmaYuzdesi;
             document.getElementById('EditIlerleme_aciklama').value = aciklama;
@@ -588,7 +595,7 @@
             // Gantt aşamalarını yükle ve seçili olanı ayarla
             loadGanttStages(projeId, 'EditIlerleme_ganttId');
             setTimeout(() => {
-                document.getElementById('EditIlerleme_ganttId').value = ganttId;
+                $('#EditIlerleme_ganttId').val(ganttId).trigger('change');
             }, 100);
             
             new bootstrap.Modal(document.getElementById('editIleremeModal')).show();
@@ -597,7 +604,10 @@
         // Gantt düzenleme fonksiyonu
         function editGantt(id, projeId, asama, baslangic, bitis, gun, sira) {
             document.getElementById('EditGantt_id').value = id;
-            document.getElementById('EditGantt_projeId').value = projeId;
+            
+            // Select2 elementleri için özel işlem
+            $('#EditGantt_projeId').val(projeId).trigger('change');
+            
             document.getElementById('EditGantt_asama').value = asama;
             document.getElementById('EditGantt_baslangic').value = baslangic;
             document.getElementById('EditGantt_bitis').value = bitis;

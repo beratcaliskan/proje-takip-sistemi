@@ -27,7 +27,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ProjeTakipContext>();
-    SeedData(context);
+    SeedDataAsync(context).Wait();
 }
 
 // Configure the HTTP request pipeline.
@@ -40,7 +40,23 @@ if (!app.Environment.IsDevelopment())
 }
 
 // Development ortamında HTTPS yönlendirmesini devre dışı bırak (yerel ağ erişimi için)
-app.UseStaticFiles();
+if (app.Environment.IsDevelopment())
+{
+    // Development ortamında static file caching'i devre dışı bırak
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        OnPrepareResponse = ctx =>
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+            ctx.Context.Response.Headers.Append("Pragma", "no-cache");
+            ctx.Context.Response.Headers.Append("Expires", "0");
+        }
+    });
+}
+else
+{
+    app.UseStaticFiles();
+}
 
 app.UseRouting();
 
@@ -58,7 +74,7 @@ app.MapControllers();
 app.Run();
 
 // Seed data fonksiyonu
-static void SeedData(ProjeTakipContext context)
+static async Task SeedDataAsync(ProjeTakipContext context)
 {
     // Veritabanının oluşturulduğundan emin ol
     context.Database.EnsureCreated();
@@ -89,4 +105,7 @@ static void SeedData(ProjeTakipContext context)
         
         context.SaveChanges();
     }
+    
+    // Test verilerini ekle
+    await ProjeTakip.TestDataSeeder.SeedTestDataAsync(context);
 }

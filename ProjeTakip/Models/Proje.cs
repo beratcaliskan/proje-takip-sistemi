@@ -9,6 +9,7 @@ namespace ProjeTakip.Models
         public string ProjeAd { get; set; } = string.Empty;
         public string Mudurluk { get; set; } = string.Empty;
         public string Baskanlik { get; set; } = string.Empty;
+        public int? BirimId { get; set; }
         public string? Amac { get; set; }
         public string? Kapsam { get; set; }
         public decimal? Maliyet { get; set; }

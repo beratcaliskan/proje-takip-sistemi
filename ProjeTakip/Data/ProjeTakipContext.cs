@@ -34,6 +34,12 @@ namespace ProjeTakip.Data
                 .WithMany()
                 .HasForeignKey(i => i.GanttID);
 
+            // İlerleme - Kullanici ilişkisi
+            modelBuilder.Entity<Ilerleme>()
+                .HasOne(i => i.EkleyenKullanici)
+                .WithMany()
+                .HasForeignKey(i => i.KullaniciID);
+
             base.OnModelCreating(modelBuilder);
         }
     }

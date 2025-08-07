@@ -385,7 +385,9 @@
             document.getElementById('EditUser_Id').value = id;
             document.getElementById('EditUser_Kimlik').value = kimlik;
             document.getElementById('EditUser_AdSoyad').value = adSoyad;
-            document.getElementById('EditUser_Rol').value = rol;
+            
+            // Select2 elementleri için özel işlem
+            $('#EditUser_Rol').val(rol).trigger('change');
             
             var editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
             editModal.show();
@@ -403,12 +405,18 @@
         // Form temizleme fonksiyonu
         function clearForm(modalId) {
             var modal = document.getElementById(modalId);
-            var inputs = modal.querySelectorAll('input[type="text"], input[type="hidden"], select');
+            var inputs = modal.querySelectorAll('input[type="text"], input[type="hidden"]');
             
             inputs.forEach(function(input) {
                 if (input.type !== 'hidden' || input.name.includes('Id')) {
                     input.value = '';
                 }
+            });
+            
+            // Select2 elementlerini temizle
+            var selects = modal.querySelectorAll('select');
+            selects.forEach(function(select) {
+                $(select).val('').trigger('change');
             });
             
             // Validation mesajlarını temizle

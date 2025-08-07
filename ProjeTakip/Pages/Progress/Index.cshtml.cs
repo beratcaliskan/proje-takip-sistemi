@@ -32,6 +32,7 @@ namespace ProjeTakip.Pages.Progress
                 IlerlemeListe = await _context.Ilerlemeler
                     .Include(i => i.Proje)
                     .Include(i => i.GanttAsama)
+                    .Include(i => i.EkleyenKullanici)
                     .ToListAsync();
             }
 
@@ -54,6 +55,9 @@ namespace ProjeTakip.Pages.Progress
         {
             if (projeId > 0 && ganttId > 0 && !string.IsNullOrEmpty(ilerlemeTanimi))
             {
+                // Session'dan kullanıcı ID'sini al
+                var kullaniciId = HttpContext.Session.GetInt32("UserId");
+
                 var ilerleme = new Ilerleme
                 {
                     ProjeID = projeId,
@@ -61,7 +65,8 @@ namespace ProjeTakip.Pages.Progress
                     IlerlemeTanimi = ilerlemeTanimi,
                     TamamlanmaYuzdesi = tamamlanmaYuzdesi,
                     IlerlemeTarihi = DateTime.Now,
-                    Aciklama = aciklama
+                    Aciklama = aciklama,
+                    KullaniciID = kullaniciId
                 };
                 _context.Ilerlemeler.Add(ilerleme);
                 await _context.SaveChangesAsync();
@@ -86,52 +91,90 @@ namespace ProjeTakip.Pages.Progress
 
         public async Task<IActionResult> OnPostUpdateIlerlemeAsync(int id, int projeId, int ganttId, string ilerlemeTanimi, int tamamlanmaYuzdesi, string? aciklama)
         {
-            var ilerleme = await _context.Ilerlemeler.FindAsync(id);
-            if (ilerleme != null && projeId > 0 && ganttId > 0 && !string.IsNullOrEmpty(ilerlemeTanimi))
+            try
             {
-                ilerleme.ProjeID = projeId;
-                ilerleme.GanttID = ganttId;
-                ilerleme.IlerlemeTanimi = ilerlemeTanimi;
-                ilerleme.TamamlanmaYuzdesi = tamamlanmaYuzdesi;
-                ilerleme.Aciklama = aciklama;
-                await _context.SaveChangesAsync();
+                var ilerleme = await _context.Ilerlemeler.FindAsync(id);
+                if (ilerleme != null && projeId > 0 && ganttId > 0 && !string.IsNullOrEmpty(ilerlemeTanimi))
+                {
+                    ilerleme.ProjeID = projeId;
+                    ilerleme.GanttID = ganttId;
+                    ilerleme.IlerlemeTanimi = ilerlemeTanimi;
+                    ilerleme.TamamlanmaYuzdesi = tamamlanmaYuzdesi;
+                    ilerleme.Aciklama = aciklama;
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "İlerleme başarıyla güncellendi!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Geçersiz veri girişi veya ilerleme bulunamadı!";
+                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                TempData["ErrorMessage"] = "Bu ilerleme kaydı başka bir kullanıcı tarafından değiştirilmiş. Lütfen sayfayı yenileyin ve tekrar deneyin.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "İlerleme güncellenirken bir hata oluştu: " + ex.Message;
             }
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostUpdateGanttAsync(int id, int projeId, string asama, DateTime? baslangic, DateTime? bitis, int gun, int sira)
         {
-            var gantt = await _context.GanttAsamalari.FindAsync(id);
-            if (gantt == null)
+            try
             {
-                TempData["ErrorMessage"] = "Gantt aşaması bulunamadı!";
-                return RedirectToPage();
+                var gantt = await _context.GanttAsamalari.FindAsync(id);
+                if (gantt == null)
+                {
+                    TempData["ErrorMessage"] = "Gantt aşaması bulunamadı!";
+                    return RedirectToPage();
+                }
+
+                gantt.ProjeID = projeId;
+                gantt.Asama = asama;
+                gantt.Baslangic = baslangic;
+                gantt.Bitis = bitis;
+                gantt.Gun = gun;
+                gantt.Sira = sira;
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Gantt aşaması başarıyla güncellendi!";
             }
-
-            gantt.ProjeID = projeId;
-            gantt.Asama = asama;
-            gantt.Baslangic = baslangic;
-            gantt.Bitis = bitis;
-            gantt.Gun = gun;
-            gantt.Sira = sira;
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Gantt aşaması başarıyla güncellendi!";
+            catch (DbUpdateConcurrencyException)
+            {
+                TempData["ErrorMessage"] = "Bu Gantt aşaması başka bir kullanıcı tarafından değiştirilmiş. Lütfen sayfayı yenileyin ve tekrar deneyin.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Gantt aşaması güncellenirken bir hata oluştu: " + ex.Message;
+            }
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostDeleteIleremeAsync(int id)
         {
-            var ilerleme = await _context.Ilerlemeler.FindAsync(id);
-            if (ilerleme != null)
+            try
             {
-                _context.Ilerlemeler.Remove(ilerleme);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "İlerleme başarıyla silindi!";
+                var ilerleme = await _context.Ilerlemeler.FindAsync(id);
+                if (ilerleme != null)
+                {
+                    _context.Ilerlemeler.Remove(ilerleme);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "İlerleme başarıyla silindi!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "İlerleme bulunamadı!";
+                }
             }
-            else
+            catch (DbUpdateConcurrencyException)
             {
-                TempData["ErrorMessage"] = "İlerleme bulunamadı!";
+                TempData["ErrorMessage"] = "Bu ilerleme kaydı başka bir kullanıcı tarafından değiştirilmiş veya silinmiş. Lütfen sayfayı yenileyin ve tekrar deneyin.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "İlerleme silinirken bir hata oluştu: " + ex.Message;
             }
 
             return RedirectToPage();
@@ -139,16 +182,27 @@ namespace ProjeTakip.Pages.Progress
 
         public async Task<IActionResult> OnPostDeleteGanttAsync(int id)
         {
-            var gantt = await _context.GanttAsamalari.FindAsync(id);
-            if (gantt != null)
+            try
             {
-                _context.GanttAsamalari.Remove(gantt);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Gantt aşaması başarıyla silindi!";
+                var gantt = await _context.GanttAsamalari.FindAsync(id);
+                if (gantt != null)
+                {
+                    _context.GanttAsamalari.Remove(gantt);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Gantt aşaması başarıyla silindi!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Gantt aşaması bulunamadı!";
+                }
             }
-            else
+            catch (DbUpdateConcurrencyException)
             {
-                TempData["ErrorMessage"] = "Gantt aşaması bulunamadı!";
+                TempData["ErrorMessage"] = "Bu Gantt aşaması başka bir kullanıcı tarafından değiştirilmiş veya silinmiş. Lütfen sayfayı yenileyin ve tekrar deneyin.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Gantt aşaması silinirken bir hata oluştu: " + ex.Message;
             }
 
             return RedirectToPage();
@@ -171,6 +225,7 @@ namespace ProjeTakip.Pages.Progress
             {
                 var progressList = await _context.Ilerlemeler
                     .Include(i => i.GanttAsama)
+                    .Include(i => i.EkleyenKullanici)
                     .Where(i => i.ProjeID == projectId)
                     .OrderByDescending(i => i.IlerlemeTarihi)
                     .Select(i => new {
@@ -178,7 +233,8 @@ namespace ProjeTakip.Pages.Progress
                         ganttAsama = i.GanttAsama != null ? i.GanttAsama.Asama : "Tanımsız",
                         ilerleme = i.IlerlemeTanimi,
                         yuzde = i.TamamlanmaYuzdesi,
-                        tarih = i.IlerlemeTarihi.ToString("dd.MM.yyyy")
+                        tarih = i.IlerlemeTarihi.ToString("dd.MM.yyyy"),
+                        ekleyenKullanici = i.EkleyenKullanici != null ? i.EkleyenKullanici.AdSoyad : "Bilinmiyor"
                     })
                     .ToListAsync();
 
