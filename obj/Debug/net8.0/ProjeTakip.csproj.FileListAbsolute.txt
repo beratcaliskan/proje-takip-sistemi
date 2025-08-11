@@ -276,3 +276,8 @@ C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\obj\Debug\net8.0\refint\P
 C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\obj\Debug\net8.0\ProjeTakip.pdb
 C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\obj\Debug\net8.0\ProjeTakip.genruntimeconfig.cache
 C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\obj\Debug\net8.0\ref\ProjeTakip.dll
+C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\obj\Debug\net8.0\ProjeTakip.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\bin\Debug\net8.0\Microsoft.OpenApi.dll
+C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\beratz\Desktop\iett-proje\proje-takip-sistemi\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll

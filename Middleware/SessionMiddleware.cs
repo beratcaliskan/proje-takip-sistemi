@@ -6,7 +6,7 @@ namespace ProjeTakip.Middleware
     public class SessionMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly string[] _excludedPaths = { "/login", "/error", "/css", "/js", "/lib", "/favicon.ico" };
+        private readonly string[] _excludedPaths = { "/login", "/error", "/css", "/js", "/lib", "/favicon.ico", "/api" };
 
         public SessionMiddleware(RequestDelegate next)
         {

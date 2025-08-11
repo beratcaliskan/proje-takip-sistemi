@@ -9,6 +9,54 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
+// API için Swagger/OpenAPI ekleme
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Proje Takip API",
+        Version = "v1",
+        Description = "Proje Takip Sistemi için RESTful API"
+    });
+    
+    // Bearer token authentication için
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+// CORS ekleme (mobil uygulamalar için)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowMobileApps", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Session servisleri ekleme
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -24,6 +72,7 @@ builder.Services.AddDbContext<ProjeTakipContext>(options =>
 
 // SystemLogService ekleme
 builder.Services.AddScoped<ISystemLogService, SystemLogService>();
+builder.Services.AddScoped<SystemLogService>();
 
 var app = builder.Build();
 
@@ -35,7 +84,17 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    // Development ortamında Swagger'ı etkinleştir
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Proje Takip API v1");
+        c.RoutePrefix = "api-docs"; // Swagger UI'ya /api-docs üzerinden erişim
+    });
+}
+else
 {
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -63,6 +122,12 @@ else
 }
 
 app.UseRouting();
+
+// CORS middleware ekleme (mobil uygulamalar için)
+app.UseCors("AllowMobileApps");
+
+// API Authentication middleware ekleme (mobil API için)
+app.UseMiddleware<ProjeTakip.Middleware.ApiAuthenticationMiddleware>();
 
 // Session middleware ekleme
 app.UseSession();
