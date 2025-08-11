@@ -202,6 +202,38 @@
     </div>
 </div>
 
+<!-- Birim Silme Onay Modal -->
+<div class="modal fade" id="deleteBirimModal" tabindex="-1" aria-labelledby="deleteBirimModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="deleteBirimForm" method="post" asp-page-handler="Delete">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="deleteBirimId" name="id" />
+                <div class="modal-header bg-danger text-white border-0">
+                    <h5 class="modal-title" id="deleteBirimModalLabel"><i class="fas fa-trash me-2"></i>Birim Sil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mb-3">Bu birimi silmek istediğinizden emin misiniz?</h5>
+                        <p class="text-muted mb-3">Bu işlem geri alınamaz ve tüm veriler kalıcı olarak silinecektir.</p>
+                        <div class="bg-light rounded p-3">
+                            <p class="mb-0"><strong>Birim:</strong> <span id="deleteBirimName" class="text-danger fw-bold"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light btn-lg me-2" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger btn-lg">Sil</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
@@ -339,26 +371,9 @@
 
         // Birim sil
         function deleteBirim(id, birimAd) {
-            if (confirm(`"${birimAd}" adlı birimi silmek istediğinizden emin misiniz?`)) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '?handler=Delete';
-
-                const idInput = document.createElement('input');
-                idInput.type = 'hidden';
-                idInput.name = 'id';
-                idInput.value = id;
-
-                const tokenInput = document.createElement('input');
-                tokenInput.type = 'hidden';
-                tokenInput.name = '__RequestVerificationToken';
-                tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
-                form.appendChild(idInput);
-                form.appendChild(tokenInput);
-                document.body.appendChild(form);
-                form.submit();
-            }
+            document.getElementById('deleteBirimId').value = id;
+            document.getElementById('deleteBirimName').textContent = birimAd;
+            new bootstrap.Modal(document.getElementById('deleteBirimModal')).show();
         }
 
         // Event listeners

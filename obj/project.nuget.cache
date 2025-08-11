@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "IA0K9IykJm8=",
+  "dgSpecHash": "r1JZIwQ0+cE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\beratz\\Desktop\\iett-staj\\proje-takip-sistemi\\ProjeTakip\\ProjeTakip.csproj",
+  "projectFilePath": "C:\\Users\\beratz\\Desktop\\iett-proje\\proje-takip-sistemi\\ProjeTakip.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\beratz\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\beratz\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

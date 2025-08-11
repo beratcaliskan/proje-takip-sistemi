@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ProjeTakip.Data;
@@ -22,6 +23,12 @@ namespace ProjeTakip.Pages.Reports
         public int ToplamKullanici { get; set; }
         public decimal ToplamMaliyet { get; set; }
         public decimal OrtalamaMaliyet { get; set; }
+        
+        // Aylık Artış/Azalış Yüzdeleri
+        public decimal ToplamProjeArtis { get; set; }
+        public decimal AktifProjeArtis { get; set; }
+        public decimal TamamlananProjeArtis { get; set; }
+        public decimal IptalEdilenProjeArtis { get; set; }
 
         // Durum Bazlı Projeler
         public List<Proje> OnayBekleyenProjeler { get; set; } = new();
@@ -46,8 +53,15 @@ namespace ProjeTakip.Pages.Reports
         // Gantt Aşama İstatistikleri
         public List<AsamaIstatistik> AsamaIstatistikleri { get; set; } = new();
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
+            // Sadece rol 1 (Admin) erişebilir
+            var userRole = HttpContext.Session.GetInt32("UserRole");
+            if (userRole != 1)
+            {
+                return RedirectToPage("/Index");
+            }
+            
             // Genel İstatistikler
             var projeler = await _context.Projeler.ToListAsync();
             var kullanicilar = await _context.Kullanicilar.ToListAsync();
@@ -61,6 +75,34 @@ namespace ProjeTakip.Pages.Reports
             ToplamMaliyet = projeler.Where(p => p.Maliyet.HasValue).Sum(p => p.Maliyet!.Value);
             OrtalamaMaliyet = projeler.Where(p => p.Maliyet.HasValue).Any() ? 
                 projeler.Where(p => p.Maliyet.HasValue).Average(p => p.Maliyet!.Value) : 0;
+
+            // Aylık artış/azalış hesaplamaları
+            var buAy = DateTime.Now;
+            var gecenAy = buAy.AddMonths(-1);
+            
+            var buAyProjeler = projeler.Where(p => p.bas.HasValue && 
+                p.bas.Value.Year == buAy.Year && p.bas.Value.Month == buAy.Month).ToList();
+            var gecenAyProjeler = projeler.Where(p => p.bas.HasValue && 
+                p.bas.Value.Year == gecenAy.Year && p.bas.Value.Month == gecenAy.Month).ToList();
+                
+            var buAyAktif = buAyProjeler.Count(p => p.Durum == 2 || p.Durum == 3);
+            var gecenAyAktif = gecenAyProjeler.Count(p => p.Durum == 2 || p.Durum == 3);
+            
+            var buAyTamamlanan = buAyProjeler.Count(p => p.Durum == 4);
+            var gecenAyTamamlanan = gecenAyProjeler.Count(p => p.Durum == 4);
+            
+            var buAyIptal = buAyProjeler.Count(p => p.Durum == 5);
+            var gecenAyIptal = gecenAyProjeler.Count(p => p.Durum == 5);
+            
+            // Yüzde hesaplamaları
+            ToplamProjeArtis = gecenAyProjeler.Count > 0 ? 
+                ((decimal)(buAyProjeler.Count - gecenAyProjeler.Count) / gecenAyProjeler.Count) * 100 : 0;
+            AktifProjeArtis = gecenAyAktif > 0 ? 
+                ((decimal)(buAyAktif - gecenAyAktif) / gecenAyAktif) * 100 : 0;
+            TamamlananProjeArtis = gecenAyTamamlanan > 0 ? 
+                ((decimal)(buAyTamamlanan - gecenAyTamamlanan) / gecenAyTamamlanan) * 100 : 0;
+            IptalEdilenProjeArtis = gecenAyIptal > 0 ? 
+                ((decimal)(buAyIptal - gecenAyIptal) / gecenAyIptal) * 100 : 0;
 
             // Durum Bazlı Projeler
             OnayBekleyenProjeler = await _context.Projeler
@@ -146,6 +188,8 @@ namespace ProjeTakip.Pages.Reports
                 })
                 .OrderByDescending(a => a.ToplamAdet)
                 .ToList();
+                
+            return Page();
         }
     }
 

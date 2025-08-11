@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ProjeTakip.Data;
 using ProjeTakip.Models;
+using ProjeTakip.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProjeTakip.Pages.Projects
@@ -10,10 +11,12 @@ namespace ProjeTakip.Pages.Projects
     public class IndexModel : PageModel
     {
         private readonly ProjeTakipContext _context;
+        private readonly ISystemLogService _logService;
 
-        public IndexModel(ProjeTakipContext context)
+        public IndexModel(ProjeTakipContext context, ISystemLogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         [TempData]
@@ -25,6 +28,7 @@ namespace ProjeTakip.Pages.Projects
         public List<Proje> ProjeListe { get; set; } = new List<Proje>();
         public List<Birim> Birimler { get; set; } = new List<Birim>();
         public List<Kullanici> Kullanicilar { get; set; } = new List<Kullanici>();
+        public List<Sponsor> Sponsorlar { get; set; } = new List<Sponsor>();
 
         // İstatistik verileri
         public List<MudurlukIstatistik> MudurlukIstatistikleri { get; set; } = new();
@@ -123,6 +127,7 @@ namespace ProjeTakip.Pages.Projects
                 ProjeListe = Projeler; // ProjeListe'yi de doldur
                 Birimler = await _context.Birimler.ToListAsync();
                 Kullanicilar = await _context.Kullanicilar.ToListAsync();
+                Sponsorlar = await _context.Sponsorler.ToListAsync();
                 
                 // İstatistik verilerini yükle
                 await LoadStatisticsAsync();
@@ -261,6 +266,11 @@ namespace ProjeTakip.Pages.Projects
 
                 _context.Projeler.Add(yeniProje);
                 await _context.SaveChangesAsync();
+                
+                // Proje ekleme işlemini logla
+                var executor = HttpContext.Session.GetString("UserName") ?? "System";
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                await _logService.LogProjectAddedAsync(AddProject.ProjeAd, executor, ipAddress);
 
                 var successMsg = "Proje başarıyla eklendi.";
                 
@@ -374,6 +384,11 @@ namespace ProjeTakip.Pages.Projects
 
                 await _context.SaveChangesAsync();
                 
+                // Proje güncelleme işlemini logla
+                var executor = HttpContext.Session.GetString("UserName") ?? "System";
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                await _logService.LogProjectUpdatedAsync(EditProject.ProjeAd, executor, ipAddress);
+                
                 var successMsg = "Proje başarıyla güncellendi.";
                 
                 if (isAjax)
@@ -445,8 +460,16 @@ namespace ProjeTakip.Pages.Projects
                     return Page();
                 }
 
+                // Silme işlemini logla (silmeden önce bilgileri al)
+                var executor = HttpContext.Session.GetString("UserName") ?? "System";
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                var deletedProjectName = proje.ProjeAd;
+                
                 _context.Projeler.Remove(proje);
                 await _context.SaveChangesAsync();
+                
+                // Proje silme işlemini logla
+                await _logService.LogProjectDeletedAsync(deletedProjectName, executor, ipAddress);
 
                 var successMsg = "Proje başarıyla silindi.";
                 

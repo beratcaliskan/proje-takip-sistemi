@@ -11,6 +11,7 @@ namespace ProjeTakip.Data
         public DbSet<Sponsor> Sponsorler { get; set; }
         public DbSet<Birim> Birimler { get; set; }
         public DbSet<Ilerleme> Ilerlemeler { get; set; }
+        public DbSet<SystemLog> SystemLogs { get; set; }
 
         public ProjeTakipContext(DbContextOptions<ProjeTakipContext> options) : base(options) { }
 

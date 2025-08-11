@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light only" />
     <title>@ViewData["Title"] - ProjeTakip</title>
     
     <!-- Google Fonts -->
@@ -79,33 +80,18 @@
                                     <i class="fas fa-chart-line me-1"></i>Raporlar
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/SystemLogs/Index">
+                                    <i class="fas fa-list-alt me-1"></i>Sistem Logları
+                                </a>
+                            </li>
 
                         }
                         @if (Context.Session.GetInt32("UserRole") == 2 || Context.Session.GetInt32("UserRole") == 3)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Projects/Index">
-                                    <i class="fas fa-tasks me-1"></i>Projeler
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Sponsors/Index">
-                                    <i class="fas fa-handshake me-1"></i>Sponsorlar
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Units/Index">
-                                    <i class="fas fa-sitemap me-1"></i>Birimler
-                                </a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-page="/Progress/Index">
                                     <i class="fas fa-chart-bar me-1"></i>İlerlemeler
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Reports/Index">
-                                    <i class="fas fa-chart-line me-1"></i>Raporlar
                                 </a>
                             </li>
 

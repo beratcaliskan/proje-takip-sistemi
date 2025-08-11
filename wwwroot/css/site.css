@@ -47,6 +47,7 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  color-scheme: light only;
 }
 
 /* Typography */
@@ -488,6 +489,50 @@ button[type="submit"]:hover {
   background-clip: text;
 }
 
+/* Auto-width badges and spans */
+.badge {
+  display: inline-block;
+  width: auto;
+  min-width: fit-content;
+  white-space: nowrap;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  border-radius: var(--border-radius-sm);
+}
+
+.team-count-badge {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-width: fit-content;
+  white-space: nowrap;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* General span auto-width utility */
+.span-auto-width {
+  display: inline-block;
+  width: auto;
+  min-width: fit-content;
+  white-space: nowrap;
+}
+
+/* Center align table headers and cells */
+th {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
 .bg-gradient {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
 }
@@ -532,8 +577,8 @@ button[type="submit"]:hover {
   h3 { font-size: 1.5rem; }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* Dark mode disabled - Site will always use light theme */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --bg-primary: #1e293b;
     --bg-secondary: #0f172a;
@@ -543,7 +588,7 @@ button[type="submit"]:hover {
     --text-muted: #64748b;
     --border-color: #334155;
   }
-}
+} */
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

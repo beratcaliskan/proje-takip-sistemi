@@ -237,6 +237,38 @@
     </div>
 </div>
 
+<!-- Sponsor Silme Onay Modal -->
+<div class="modal fade" id="deleteSponsorModal" tabindex="-1" aria-labelledby="deleteSponsorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="deleteSponsorForm" method="post" asp-page-handler="DeleteSponsor">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="deleteSponsorId" name="id" />
+                <div class="modal-header bg-danger text-white border-0">
+                    <h5 class="modal-title" id="deleteSponsorModalLabel"><i class="fas fa-trash me-2"></i>Sponsor Sil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mb-3">Bu sponsoru silmek istediğinizden emin misiniz?</h5>
+                        <p class="text-muted mb-3">Bu işlem geri alınamaz ve tüm veriler kalıcı olarak silinecektir.</p>
+                        <div class="bg-light rounded p-3">
+                            <p class="mb-0"><strong>Sponsor:</strong> <span id="deleteSponsorName" class="text-danger fw-bold"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light btn-lg me-2" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger btn-lg">Sil</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         // Debounce fonksiyonu - performans için
@@ -459,29 +491,11 @@
 
         // Sponsor silme fonksiyonu
         function deleteSponsor(id, sponsorAd) {
-            if (confirm('"' + sponsorAd + '" adlı sponsoru silmek istediğinizden emin misiniz?')) {
-                // Form oluştur ve gönder
-                var form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '?handler=DeleteSponsor';
-                
-                // Anti-forgery token ekle
-                var tokenInput = document.createElement('input');
-                tokenInput.type = 'hidden';
-                tokenInput.name = '__RequestVerificationToken';
-                tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
-                form.appendChild(tokenInput);
-                
-                // ID parametresi ekle
-                var idInput = document.createElement('input');
-                idInput.type = 'hidden';
-                idInput.name = 'id';
-                idInput.value = id;
-                form.appendChild(idInput);
-                
-                document.body.appendChild(form);
-                form.submit();
-            }
+            document.getElementById('deleteSponsorId').value = id;
+            document.getElementById('deleteSponsorName').textContent = sponsorAd;
+            
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteSponsorModal'));
+            deleteModal.show();
         }
     </script>
 }

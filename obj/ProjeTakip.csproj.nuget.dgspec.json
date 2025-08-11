@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\beratz\\Desktop\\iett-staj\\proje-takip-sistemi\\ProjeTakip\\ProjeTakip.csproj": {}
+    "C:\\Users\\beratz\\Desktop\\iett-proje\\proje-takip-sistemi\\ProjeTakip.csproj": {}
   },
   "projects": {
-    "C:\\Users\\beratz\\Desktop\\iett-staj\\proje-takip-sistemi\\ProjeTakip\\ProjeTakip.csproj": {
+    "C:\\Users\\beratz\\Desktop\\iett-proje\\proje-takip-sistemi\\ProjeTakip.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\beratz\\Desktop\\iett-staj\\proje-takip-sistemi\\ProjeTakip\\ProjeTakip.csproj",
+        "projectUniqueName": "C:\\Users\\beratz\\Desktop\\iett-proje\\proje-takip-sistemi\\ProjeTakip.csproj",
         "projectName": "ProjeTakip",
-        "projectPath": "C:\\Users\\beratz\\Desktop\\iett-staj\\proje-takip-sistemi\\ProjeTakip\\ProjeTakip.csproj",
+        "projectPath": "C:\\Users\\beratz\\Desktop\\iett-proje\\proje-takip-sistemi\\ProjeTakip.csproj",
         "packagesPath": "C:\\Users\\beratz\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\beratz\\Desktop\\iett-staj\\proje-takip-sistemi\\ProjeTakip\\obj\\",
+        "outputPath": "C:\\Users\\beratz\\Desktop\\iett-proje\\proje-takip-sistemi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -86,7 +86,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

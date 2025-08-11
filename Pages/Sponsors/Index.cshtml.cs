@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ProjeTakip.Data;
 using ProjeTakip.Models;
+using ProjeTakip.Services;
 
 namespace ProjeTakip.Pages.Sponsors
 {
     public class IndexModel : PageModel
     {
         private readonly ProjeTakipContext _context;
+        private readonly ISystemLogService _logService;
 
-        public IndexModel(ProjeTakipContext context)
+        public IndexModel(ProjeTakipContext context, ISystemLogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         public IList<Sponsor> Sponsorlar { get; set; } = default!;
@@ -24,8 +27,15 @@ namespace ProjeTakip.Pages.Sponsors
         [BindProperty]
         public Sponsor EditSponsor { get; set; } = default!;
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
+            // Sadece rol 1 (Admin) erişebilir
+            var userRole = HttpContext.Session.GetInt32("UserRole");
+            if (userRole != 1)
+            {
+                return RedirectToPage("/Index");
+            }
+            
             if (_context.Sponsorler != null)
             {
                 Sponsorlar = await _context.Sponsorler.ToListAsync();
@@ -35,6 +45,8 @@ namespace ProjeTakip.Pages.Sponsors
             {
                 Birimler = await _context.Birimler.ToListAsync();
             }
+            
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAddSponsorAsync()
@@ -46,6 +58,11 @@ namespace ProjeTakip.Pages.Sponsors
 
             _context.Sponsorler.Add(AddSponsor);
             await _context.SaveChangesAsync();
+            
+            // Sponsor ekleme işlemini logla
+            var executor = HttpContext.Session.GetString("UserName") ?? "System";
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+            await _logService.LogSponsorAddedAsync(AddSponsor.SponsorAd, executor, ipAddress);
 
             return RedirectToPage();
         }
@@ -62,6 +79,11 @@ namespace ProjeTakip.Pages.Sponsors
             try
             {
                 await _context.SaveChangesAsync();
+                
+                // Sponsor güncelleme işlemini logla
+                var executor = HttpContext.Session.GetString("UserName") ?? "System";
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                await _logService.LogSponsorUpdatedAsync(EditSponsor.SponsorAd, executor, ipAddress);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -89,8 +111,16 @@ namespace ProjeTakip.Pages.Sponsors
 
             if (sponsor != null)
             {
+                // Silme işlemini logla (silmeden önce bilgileri al)
+                var executor = HttpContext.Session.GetString("UserName") ?? "System";
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                var deletedSponsorName = sponsor.SponsorAd;
+                
                 _context.Sponsorler.Remove(sponsor);
                 await _context.SaveChangesAsync();
+                
+                // Sponsor silme işlemini logla
+                await _logService.LogSponsorDeletedAsync(deletedSponsorName, executor, ipAddress);
             }
 
             return RedirectToPage();

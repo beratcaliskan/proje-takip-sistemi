@@ -252,12 +252,32 @@
                             </div>
                             <div class="mb-3">
                                 <label asp-for="AddProject.Ekip" class="form-label">Ekip</label>
-                                <input asp-for="AddProject.Ekip" class="form-control" placeholder="Ekip bilgisini giriniz" />
+                                <select id="AddProject_EkipSelect" class="form-select">
+                                    <option value="">Kullanıcı seçiniz</option>
+                                    @if (Model.Kullanicilar != null)
+                                    {
+                                        @foreach (var kullanici in Model.Kullanicilar)
+                                        {
+                                            <option value="@kullanici.id">@kullanici.AdSoyad - @kullanici.id</option>
+                                        }
+                                    }
+                                </select>
+                                <input asp-for="AddProject.Ekip" type="hidden" id="AddProject_Ekip" />
+                                <div id="addSelectedUsersContainer" class="mt-2" style="display: flex; flex-wrap: wrap; gap: 0.25rem;"></div>
                                 <span asp-validation-for="AddProject.Ekip" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
                                 <label asp-for="AddProject.sponsor" class="form-label">Sponsor</label>
-                                <input asp-for="AddProject.sponsor" class="form-control" placeholder="Sponsor bilgisini giriniz" />
+                                <select asp-for="AddProject.sponsor" class="form-select" id="AddProject_sponsor">
+                                    <option value="">Sponsor seçiniz</option>
+                                    @if (Model.Sponsorlar != null)
+                                    {
+                                        @foreach (var sponsor in Model.Sponsorlar)
+                                        {
+                                            <option value="@sponsor.SponsorAd">@sponsor.SponsorAd</option>
+                                        }
+                                    }
+                                </select>
                                 <span asp-validation-for="AddProject.sponsor" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
@@ -384,7 +404,16 @@
                             </div>
                             <div class="mb-3">
                                 <label asp-for="EditProject.sponsor" class="form-label">Sponsor</label>
-                                <input asp-for="EditProject.sponsor" class="form-control" placeholder="Sponsor bilgisini giriniz" id="EditProject_sponsor" />
+                                <select asp-for="EditProject.sponsor" class="form-select" id="EditProject_sponsor">
+                                    <option value="">Sponsor seçiniz</option>
+                                    @if (Model.Sponsorlar != null)
+                                    {
+                                        @foreach (var sponsor in Model.Sponsorlar)
+                                        {
+                                            <option value="@sponsor.SponsorAd">@sponsor.SponsorAd</option>
+                                        }
+                                    }
+                                </select>
                                 <span asp-validation-for="EditProject.sponsor" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
@@ -2593,5 +2622,141 @@
                 });
             }
         }
+        
+        // Create Modal için Ekip seçimi
+        $(document).ready(function() {
+            // Create Modal için Select2 başlatma
+            $('#AddProject_EkipSelect').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Kullanıcı seçiniz',
+                allowClear: false,
+                tags: false,
+                minimumInputLength: 0,
+                selectOnClose: false,
+                dropdownParent: $('#addProjectModal'),
+                closeOnSelect: true,
+                language: {
+                    noResults: function() {
+                        return 'Sonuç bulunamadı';
+                    },
+                    searching: function() {
+                        return 'Aranıyor...';
+                    },
+                    inputTooShort: function() {
+                        return 'Arama yapmak için yazın';
+                    }
+                },
+                escapeMarkup: function(markup) {
+                    return markup;
+                }
+            });
+            
+            // Create Modal - Kullanıcı seçildiğinde badge ekleme
+            $('#AddProject_EkipSelect').on('select2:select', function(e) {
+                const selectedData = e.params.data;
+                const userId = selectedData.id;
+                const userText = selectedData.text;
+                
+                if (userId && userId !== '') {
+                    addUserBadgeForCreate(userId, userText);
+                    updateHiddenInputForCreate();
+                    
+                    // Seçimi temizle ve placeholder'a geri dön
+                    $('#AddProject_EkipSelect').val('').trigger('change');
+                }
+            });
+            
+            // Create Modal için sponsor dropdown Select2
+            $('#AddProject_sponsor').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Sponsor seçiniz',
+                allowClear: true,
+                dropdownParent: $('#addProjectModal')
+            });
+            
+            // Edit Modal için sponsor dropdown Select2
+            $('#EditProject_sponsor').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Sponsor seçiniz',
+                allowClear: true,
+                dropdownParent: $('#editProjectModal')
+            });
+        });
+        
+        // Create Modal için kullanıcı badge'i ekleme fonksiyonu
+        function addUserBadgeForCreate(userId, userText) {
+            const container = document.getElementById('addSelectedUsersContainer');
+            
+            // Zaten var mı kontrol et
+            if (document.getElementById(`add-user-badge-${userId}`)) {
+                return;
+            }
+            
+            const badge = document.createElement('span');
+            badge.id = `add-user-badge-${userId}`;
+            badge.className = 'badge bg-primary d-inline-flex align-items-center';
+            badge.style.fontSize = '0.875rem';
+            badge.style.padding = '0.5rem 0.75rem';
+            badge.style.borderRadius = '0.375rem';
+            badge.style.whiteSpace = 'nowrap';
+            badge.style.width = 'auto';
+            badge.style.minWidth = 'fit-content';
+            badge.style.maxWidth = '100%';
+            badge.innerHTML = `
+                <i class="fas fa-user me-2"></i>
+                ${userText}
+                <button type="button" class="btn-close btn-close-white ms-2" style="font-size: 0.7rem;" onclick="removeUserBadgeByIdForCreate('${userId}')"></button>
+            `;
+            
+            container.appendChild(badge);
+        }
+        
+        // Create Modal için kullanıcı badge'i kaldırma fonksiyonu
+        function removeUserBadgeForCreate(userId) {
+            const badge = document.getElementById(`add-user-badge-${userId}`);
+            if (badge) {
+                badge.remove();
+            }
+        }
+        
+        // Create Modal - Badge'den kullanıcı kaldırma (X butonuna tıklandığında)
+        function removeUserBadgeByIdForCreate(userId) {
+            // Badge'i kaldır
+            removeUserBadgeForCreate(userId);
+            
+            // Hidden input'u güncelle
+            updateHiddenInputForCreate();
+        }
+        
+        // Create Modal için Hidden input'u güncelleme fonksiyonu
+        function updateHiddenInputForCreate() {
+            const badges = document.querySelectorAll('#addSelectedUsersContainer .badge');
+            const selectedTexts = [];
+            
+            badges.forEach(badge => {
+                const badgeText = badge.textContent.trim();
+                // X butonunu çıkar
+                const cleanText = badgeText.replace(/\s*×\s*$/, '').trim();
+                if (cleanText) {
+                    selectedTexts.push(cleanText);
+                }
+            });
+            
+            document.getElementById('AddProject_Ekip').value = selectedTexts.join(', ');
+        }
+        
+        // Create Modal açıldığında temizleme
+        $('#addProjectModal').on('show.bs.modal', function() {
+            // Ekip seçimini temizle
+            $('#AddProject_EkipSelect').val('').trigger('change');
+            document.getElementById('addSelectedUsersContainer').innerHTML = '';
+            document.getElementById('AddProject_Ekip').value = '';
+            
+            // Sponsor seçimini temizle
+            $('#AddProject_sponsor').val('').trigger('change');
+        });
     </script>
 }

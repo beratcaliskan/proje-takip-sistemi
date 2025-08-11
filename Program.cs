@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProjeTakip.Data;
 using ProjeTakip.Middleware;
+using ProjeTakip.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,9 @@ builder.Services.AddSession(options =>
 // Entity Framework DbContext ekleme
 builder.Services.AddDbContext<ProjeTakipContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// SystemLogService ekleme
+builder.Services.AddScoped<ISystemLogService, SystemLogService>();
 
 var app = builder.Build();
 

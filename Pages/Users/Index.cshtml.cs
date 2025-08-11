@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ProjeTakip.Data;
 using ProjeTakip.Models;
+using ProjeTakip.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProjeTakip.Pages.Users
@@ -10,10 +11,12 @@ namespace ProjeTakip.Pages.Users
     public class IndexModel : PageModel
     {
         private readonly ProjeTakipContext _context;
+        private readonly ISystemLogService _logService;
 
-        public IndexModel(ProjeTakipContext context)
+        public IndexModel(ProjeTakipContext context, ISystemLogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         [TempData]
@@ -151,6 +154,11 @@ namespace ProjeTakip.Pages.Users
 
                 _context.Kullanicilar.Add(yeniKullanici);
                 await _context.SaveChangesAsync();
+                
+                // Kullanıcı ekleme işlemini logla
+                var executor = HttpContext.Session.GetString("UserName") ?? "System";
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                await _logService.LogUserAddedAsync(AddUser.Kimlik, executor, ipAddress);
 
                 var successMsg = "Kullanıcı başarıyla eklendi.";
                 
@@ -268,6 +276,11 @@ namespace ProjeTakip.Pages.Users
 
                 await _context.SaveChangesAsync();
                 
+                // Kullanıcı güncelleme işlemini logla
+                var executor = HttpContext.Session.GetString("UserName") ?? "System";
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                await _logService.LogUserUpdatedAsync(EditUser.Kimlik, executor, ipAddress);
+                
                 // Eğer güncellenecek kullanıcı şu anda giriş yapmış kullanıcıysa session'ı güncelle
                 var currentUserId = HttpContext.Session.GetString("UserId");
                 if (currentUserId != null && int.Parse(currentUserId) == EditUser.Id)
@@ -348,8 +361,16 @@ namespace ProjeTakip.Pages.Users
                     return Page();
                 }
 
+                // Silme işlemini logla (silmeden önce bilgileri al)
+                var executor = HttpContext.Session.GetString("UserName") ?? "System";
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                var deletedUserKimlik = kullanici.Kimlik;
+                
                 _context.Kullanicilar.Remove(kullanici);
                 await _context.SaveChangesAsync();
+                
+                // Kullanıcı silme işlemini logla
+                await _logService.LogUserDeletedAsync(deletedUserKimlik, executor, ipAddress);
 
                 var successMsg = "Kullanıcı başarıyla silindi.";
                 

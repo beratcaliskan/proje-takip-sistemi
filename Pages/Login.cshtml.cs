@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ProjeTakip.Data;
 using ProjeTakip.Models;
+using ProjeTakip.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProjeTakip.Pages
@@ -10,10 +11,12 @@ namespace ProjeTakip.Pages
     public class LoginModel : PageModel
     {
         private readonly ProjeTakipContext _context;
+        private readonly ISystemLogService _logService;
 
-        public LoginModel(ProjeTakipContext context)
+        public LoginModel(ProjeTakipContext context, ISystemLogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         [BindProperty]
@@ -28,8 +31,18 @@ namespace ProjeTakip.Pages
 
         public string ErrorMessage { get; set; } = string.Empty;
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
+            // Çıkış işlemi için log kaydı
+            var userName = HttpContext.Session.GetString("UserName");
+            var userKimlik = HttpContext.Session.GetString("UserKimlik");
+            
+            if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(userKimlik))
+            {
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                await _logService.LogUserLogoutAsync(userKimlik, userName, ipAddress);
+            }
+            
             // Session'ı temizle (logout işlemi)
             HttpContext.Session.Clear();
         }
@@ -69,6 +82,11 @@ namespace ProjeTakip.Pages
                 HttpContext.Session.SetInt32("UserId", kullanici.id);
                 HttpContext.Session.SetString("UserName", kullanici.AdSoyad);
                 HttpContext.Session.SetString("UserKimlik", kullanici.Kimlik);
+                
+                // Giriş işlemini logla
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+                await _logService.LogUserLoginAsync(kullanici.Kimlik, kullanici.AdSoyad, ipAddress, userAgent);
                 HttpContext.Session.SetInt32("UserRole", kullanici.Rol);
 
                 if (isAjax)

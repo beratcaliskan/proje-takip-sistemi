@@ -1,0 +1,311 @@
+@page
+@model ProjeTakip.Pages.SystemLogs.IndexModel
+@{
+    ViewData["Title"] = "Sistem Logları";
+}
+
+<div class="container-fluid px-4 py-3">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">
+                        <i class="fas fa-list-alt text-primary me-2"></i>Sistem Logları
+                    </h2>
+                    <p class="text-muted mb-0">Sistem aktivitelerini görüntüleyin ve yönetin</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#clearLogsModal">
+                        <i class="fas fa-broom me-1"></i>Eski Logları Temizle
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="location.reload()">
+                        <i class="fas fa-sync-alt me-1"></i>Yenile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Arama</label>
+                            <input type="text" class="form-control" name="searchTerm" value="@Model.SearchTerm" placeholder="Log içeriği veya kullanıcı ara...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Log Tipi</label>
+                            <select class="form-select" name="logTypeFilter">
+                                <option value="">Tümü</option>
+                                <option value="INFO" selected="@(Model.LogTypeFilter == "INFO")">Bilgi</option>
+                                <option value="WARNING" selected="@(Model.LogTypeFilter == "WARNING")">Uyarı</option>
+                                <option value="ERROR" selected="@(Model.LogTypeFilter == "ERROR")">Hata</option>
+                                <option value="SUCCESS" selected="@(Model.LogTypeFilter == "SUCCESS")">Başarılı</option>
+                                <option value="LOGIN" selected="@(Model.LogTypeFilter == "LOGIN")">Giriş</option>
+                                <option value="LOGOUT" selected="@(Model.LogTypeFilter == "LOGOUT")">Çıkış</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Kullanıcı</label>
+                            <input type="text" class="form-control" name="executorFilter" value="@Model.ExecutorFilter" placeholder="Kullanıcı adı...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Başlangıç Tarihi</label>
+                            <input type="date" class="form-control" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Bitiş Tarihi</label>
+                            <input type="date" class="form-control" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))">
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 bg-primary text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-list-alt fa-2x mb-2"></i>
+                            <h4 class="fw-bold">@Model.TotalLogs</h4>
+                            <p class="mb-0">Toplam Log</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-info text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                            <h4 class="fw-bold">@DateTime.Now.ToString("dd.MM.yyyy")</h4>
+                            <p class="mb-0">Bugün</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-success text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-alt fa-2x mb-2"></i>
+                            <h4 class="fw-bold">@Model.PageNumber</h4>
+                            <p class="mb-0">Sayfa</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-warning text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-layer-group fa-2x mb-2"></i>
+                            <h4 class="fw-bold">@Model.TotalPages</h4>
+                            <p class="mb-0">Toplam Sayfa</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    @if (Model.SystemLogs.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-4 py-3 fw-semibold" style="color: #374151; width: 80px;">#ID</th>
+                                        <th class="px-4 py-3 fw-semibold" style="color: #374151; width: 120px;">Tip</th>
+                                        <th class="px-4 py-3 fw-semibold" style="color: #374151;">İçerik</th>
+                                        <th class="px-4 py-3 fw-semibold" style="color: #374151; width: 150px;">Kullanıcı</th>
+                                        <th class="px-4 py-3 fw-semibold" style="color: #374151; width: 180px;">Tarih</th>
+                                        <th class="px-4 py-3 fw-semibold text-center" style="color: #374151; width: 100px;">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var log in Model.SystemLogs)
+                                    {
+                                        <tr>
+                                            <td class="px-4 py-3 fw-semibold text-center" style="color: #1f2937;">#@log.Id</td>
+                                            <td class="px-4 py-3 text-center">
+                                                @switch (log.LogType)
+                                                {
+                                                    case "INFO":
+                                                        <span class="badge bg-info">Bilgi</span>
+                                                        break;
+                                                    case "WARNING":
+                                                        <span class="badge bg-warning text-dark">Uyarı</span>
+                                                        break;
+                                                    case "ERROR":
+                                                        <span class="badge bg-danger">Hata</span>
+                                                        break;
+                                                    case "SUCCESS":
+                                                        <span class="badge bg-success">Başarılı</span>
+                                                        break;
+                                                    case "LOGIN":
+                                                        <span class="badge bg-primary">Giriş</span>
+                                                        break;
+                                                    case "LOGOUT":
+                                                        <span class="badge bg-secondary">Çıkış</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-light text-dark">@log.LogType</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td class="px-4 py-3" style="color: #6b7280;">
+                                                <div class="text-truncate" style="max-width: 400px;" title="@log.LogContent">
+                                                    @log.LogContent
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3" style="color: #6b7280;">@log.Executor</td>
+                                            <td class="px-4 py-3" style="color: #6b7280;">@log.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                            <td class="px-4 py-3 text-center">
+                                                <button type="button" class="btn btn-sm btn-danger" 
+                                                        onclick="deleteLog(@log.Id, '@log.LogContent')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        @if (Model.TotalPages > 1)
+                        {
+                            <div class="d-flex justify-content-between align-items-center p-4 border-top">
+                                <div class="text-muted">
+                                    Toplam @Model.TotalLogs kayıt, sayfa @Model.PageNumber / @Model.TotalPages
+                                </div>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        @if (Model.PageNumber > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=@(Model.PageNumber - 1)&searchTerm=@Model.SearchTerm&logTypeFilter=@Model.LogTypeFilter&executorFilter=@Model.ExecutorFilter&startDate=@(Model.StartDate?.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate?.ToString("yyyy-MM-dd"))">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                                        {
+                                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                                <a class="page-link" href="?pageNumber=@i&searchTerm=@Model.SearchTerm&logTypeFilter=@Model.LogTypeFilter&executorFilter=@Model.ExecutorFilter&startDate=@(Model.StartDate?.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate?.ToString("yyyy-MM-dd"))">
+                                                    @i
+                                                </a>
+                                            </li>
+                                        }
+
+                                        @if (Model.PageNumber < Model.TotalPages)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=@(Model.PageNumber + 1)&searchTerm=@Model.SearchTerm&logTypeFilter=@Model.LogTypeFilter&executorFilter=@Model.ExecutorFilter&startDate=@(Model.StartDate?.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate?.ToString("yyyy-MM-dd"))">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                                <i class="fas fa-list-alt" style="font-size: 2rem; color: #6c757d;"></i>
+                            </div>
+                            <h3 class="mt-4 fw-bold text-dark">Henüz log kaydı bulunmamaktadır</h3>
+                            <p class="mt-2 text-muted">Sistem aktiviteleri burada görüntülenecektir.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Silme Onay Modal -->
+<div class="modal fade" id="deleteLogModal" tabindex="-1" aria-labelledby="deleteLogModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="deleteLogForm" method="post" asp-page-handler="Delete">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="deleteLogId" name="id" />
+                <div class="modal-header bg-danger text-white border-0">
+                    <h5 class="modal-title" id="deleteLogModalLabel"><i class="fas fa-trash me-2"></i>Log Sil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mb-3">Bu log kaydını silmek istediğinizden emin misiniz?</h5>
+                        <p class="text-muted mb-3">Bu işlem geri alınamaz ve log kaydı kalıcı olarak silinecektir.</p>
+                        <div class="bg-light rounded p-3">
+                            <p class="mb-0"><strong>Log İçeriği:</strong> <span id="deleteLogContent" class="text-danger fw-bold"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light btn-lg me-2" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger btn-lg">Sil</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Eski Logları Temizle Modal -->
+<div class="modal fade" id="clearLogsModal" tabindex="-1" aria-labelledby="clearLogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form method="post" asp-page-handler="ClearOldLogs">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-warning text-dark border-0">
+                    <h5 class="modal-title" id="clearLogsModalLabel"><i class="fas fa-broom me-2"></i>Eski Logları Temizle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-broom text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mb-3">Eski log kayıtlarını temizlemek istediğinizden emin misiniz?</h5>
+                        <p class="text-muted mb-3">Bu işlem belirtilen gün sayısından eski tüm log kayıtlarını silecektir.</p>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Kaç gün öncesinden eski kayıtlar silinsin?</label>
+                            <select class="form-select" name="days">
+                                <option value="7">7 gün</option>
+                                <option value="15">15 gün</option>
+                                <option value="30" selected>30 gün</option>
+                                <option value="60">60 gün</option>
+                                <option value="90">90 gün</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light btn-lg me-2" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-warning btn-lg">Temizle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Log sil
+        function deleteLog(id, content) {
+            document.getElementById('deleteLogId').value = id;
+            document.getElementById('deleteLogContent').textContent = content.length > 50 ? content.substring(0, 50) + '...' : content;
+            new bootstrap.Modal(document.getElementById('deleteLogModal')).show();
+        }
+    </script>
+}

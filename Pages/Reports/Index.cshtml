@@ -40,10 +40,13 @@
                             <div class="stat-icon bg-primary-light">
                                 <i class="fas fa-project-diagram text-primary"></i>
                             </div>
-                            <div class="stat-trend text-success">
-                                <i class="fas fa-arrow-up me-1"></i>
-                                <small>+12%</small>
-                            </div>
+                            @if (Model.ToplamProjeArtis != 0)
+                            {
+                                <div class="stat-trend @(Model.ToplamProjeArtis > 0 ? "text-success" : "text-danger")">
+                                    <i class="fas @(Model.ToplamProjeArtis > 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                                    <small>@(Model.ToplamProjeArtis > 0 ? "+" : "")@Model.ToplamProjeArtis.ToString("F1")%</small>
+                                </div>
+                            }
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-number mb-1">@Model.ToplamProje</h3>
@@ -62,10 +65,13 @@
                             <div class="stat-icon bg-success-light">
                                 <i class="fas fa-play-circle text-success"></i>
                             </div>
-                            <div class="stat-trend text-success">
-                                <i class="fas fa-arrow-up me-1"></i>
-                                <small>+8%</small>
-                            </div>
+                            @if (Model.AktifProjeArtis != 0)
+                            {
+                                <div class="stat-trend @(Model.AktifProjeArtis > 0 ? "text-success" : "text-danger")">
+                                    <i class="fas @(Model.AktifProjeArtis > 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                                    <small>@(Model.AktifProjeArtis > 0 ? "+" : "")@Model.AktifProjeArtis.ToString("F1")%</small>
+                                </div>
+                            }
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-number mb-1">@Model.AktifProje</h3>
@@ -84,10 +90,13 @@
                             <div class="stat-icon bg-info-light">
                                 <i class="fas fa-check-circle text-info"></i>
                             </div>
-                            <div class="stat-trend text-success">
-                                <i class="fas fa-arrow-up me-1"></i>
-                                <small>+15%</small>
-                            </div>
+                            @if (Model.TamamlananProjeArtis != 0)
+                            {
+                                <div class="stat-trend @(Model.TamamlananProjeArtis > 0 ? "text-success" : "text-danger")">
+                                    <i class="fas @(Model.TamamlananProjeArtis > 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                                    <small>@(Model.TamamlananProjeArtis > 0 ? "+" : "")@Model.TamamlananProjeArtis.ToString("F1")%</small>
+                                </div>
+                            }
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-number mb-1">@Model.TamamlananProje</h3>
@@ -106,10 +115,13 @@
                             <div class="stat-icon bg-danger-light">
                                 <i class="fas fa-times-circle text-danger"></i>
                             </div>
-                            <div class="stat-trend text-danger">
-                                <i class="fas fa-arrow-down me-1"></i>
-                                <small>-2%</small>
-                            </div>
+                            @if (Model.IptalEdilenProjeArtis != 0)
+                            {
+                                <div class="stat-trend @(Model.IptalEdilenProjeArtis > 0 ? "text-danger" : "text-success")">
+                                    <i class="fas @(Model.IptalEdilenProjeArtis > 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                                    <small>@(Model.IptalEdilenProjeArtis > 0 ? "+" : "")@Model.IptalEdilenProjeArtis.ToString("F1")%</small>
+                                </div>
+                            }
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-number mb-1">@Model.IptalEdilenProje</h3>
@@ -570,18 +582,22 @@
     <script>
         // Basit ve etkili filtreleme sistemi
         function filterReports() {
-            const reportFilter = document.getElementById('reportFilter');
+            console.log('filterReports çağrıldı');
+            
+            // Select2 değerlerini al
+            const reportType = $('#reportFilter').val() || '';
+            const mudurlukFilterValue = $('#mudurlukFilter').val() || '';
+            const sortValue = $('#sortBy').val() || '';
+            
             const searchInput = document.getElementById('searchInput');
-            const sortBy = document.getElementById('sortBy');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
             
-            if (!reportFilter || !searchInput || !sortBy) {
-                console.error('Required elements not found');
-                return;
-            }
-            
-            const reportType = reportFilter.value;
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const sortValue = sortBy.value;
+            console.log('Filtre değerleri:', {
+                reportType: reportType,
+                mudurlukFilterValue: mudurlukFilterValue,
+                searchTerm: searchTerm,
+                sortValue: sortValue
+            });
             
             // Eğer arama terimi boşsa, sıralama da resetlensin
             if (searchTerm === '') {
@@ -594,6 +610,8 @@
                 const section = document.getElementById(id);
                 if (section) {
                     section.classList.remove('active');
+                    section.style.display = 'none';
+                    console.log('Section gizlendi:', id);
                 }
             });
 
@@ -604,35 +622,51 @@
             else if (reportType === 'asama') targetSectionId = 'asamaSection';
             else if (reportType === 'durum') targetSectionId = 'durumSection';
 
+            console.log('Hedef section:', targetSectionId);
             const targetSection = document.getElementById(targetSectionId);
+            console.log('Hedef section elementi:', targetSection);
+            
             if (targetSection) {
-            // Remove 'active' class from all other sections
-            document.querySelectorAll('.statistics-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            targetSection.classList.add('active');
+                // Hedef section'ı göster
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+                console.log('Section gösterildi:', targetSectionId);
                 
                 
                 // Arama ve sıralama uygula
                 if (targetSectionId === 'durumSection') {
-                    filterDurumCards(searchTerm);
+                    filterDurumCards(searchTerm, mudurlukFilterValue);
                 } else {
                     const table = targetSection.querySelector('table');
                     if (table) {
-                        filterTable(table, searchTerm, sortValue);
+                        filterTable(table, searchTerm, sortValue, mudurlukFilterValue);
                     }
                 }
             }
         }
 
         // Durum kartlarını filtrele
-        function filterDurumCards(searchTerm) {
+        function filterDurumCards(searchTerm, mudurlukFilter) {
             const cards = document.querySelectorAll('#durumSection .col-lg-4');
             let visibleCount = 0;
             
             cards.forEach(card => {
                 const text = card.textContent.toLowerCase();
-                if (searchTerm === '' || text.includes(searchTerm)) {
+                const mudurlukText = card.querySelector('.fa-building')?.parentElement?.textContent?.trim() || '';
+                
+                let showCard = true;
+                
+                // Arama terimi kontrolü
+                if (searchTerm !== '' && !text.includes(searchTerm)) {
+                    showCard = false;
+                }
+                
+                // Müdürlük filtresi kontrolü - TAM EŞLEŞME
+                if (mudurlukFilter !== '' && mudurlukText.toLowerCase().trim() !== mudurlukFilter.toLowerCase().trim()) {
+                    showCard = false;
+                }
+                
+                if (showCard) {
                     card.style.display = '';
                     visibleCount++;
                 } else {
@@ -640,26 +674,37 @@
                 }
             });
             
-            // Arama terimi boşsa tüm kartları göster
-            if (searchTerm === '') {
-                cards.forEach(card => {
-                    card.style.display = '';
-                });
-                visibleCount = cards.length;
-            }
-            
             updateResultCount(visibleCount, cards.length);
         }
 
         // Tablo filtrele
-        function filterTable(table, searchTerm, sortValue) {
+        function filterTable(table, searchTerm, sortValue, mudurlukFilter) {
             const tbody = table.querySelector('tbody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
             let visibleCount = 0;
 
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
-                if (searchTerm === '' || text.includes(searchTerm)) {
+                const firstCellText = row.cells[0]?.textContent?.toLowerCase() || '';
+                
+                let showRow = true;
+                
+                // Arama terimi kontrolü
+                if (searchTerm !== '' && !text.includes(searchTerm)) {
+                    showRow = false;
+                }
+                
+                // Müdürlük filtresi kontrolü (sadece müdürlük tablosu için) - TAM EŞLEŞME
+                if (mudurlukFilter !== '' && table.id === 'mudurlukTable') {
+                    const cellText = firstCellText.trim().toLowerCase();
+                    const filterText = mudurlukFilter.toLowerCase().trim();
+                    // Tam eşleşme kontrolü
+                    if (cellText !== filterText) {
+                        showRow = false;
+                    }
+                }
+                
+                if (showRow) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -667,15 +712,9 @@
                 }
             });
 
-            // Arama terimi boşsa orijinal sıralamaya dön
-            if (searchTerm === '') {
-                // Orijinal sıralamayı geri yükle (DOM sırasına göre)
-                const originalRows = Array.from(tbody.querySelectorAll('tr'));
-                tbody.innerHTML = '';
-                originalRows.forEach(row => tbody.appendChild(row));
-            }
-            // Sıralama
-            else if (sortValue) {
+            // Sıralama uygula (eğer sıralama seçilmişse)
+            if (sortValue) {
+                console.log('Sıralama uygulanıyor:', sortValue);
                 const visibleRows = rows.filter(row => row.style.display !== 'none');
                 visibleRows.sort((a, b) => {
                     const aText = a.cells[0].textContent.trim();
@@ -1093,31 +1132,55 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Kısa bir gecikme ile DOM'un tamamen yüklenmesini bekle
             setTimeout(function() {
-                const reportFilter = document.getElementById('reportFilter');
-                const searchInput = document.getElementById('searchInput');
-                const sortBy = document.getElementById('sortBy');
-
-                if (reportFilter) {
-                    reportFilter.addEventListener('change', function() {
-                        filterReports();
-                    });
-                }
+                // Select2 initialize et
+                $('#reportFilter').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%'
+                });
                 
+                $('#mudurlukFilter').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%'
+                });
+                
+                $('#sortBy').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%'
+                });
+
+                // Select2 event listeners - hem select hem de clear için
+                $('#reportFilter').on('select2:select select2:clear change', function() {
+                    console.log('Report filter değişti:', $(this).val());
+                    filterReports();
+                });
+                
+                $('#mudurlukFilter').on('select2:select select2:clear change', function() {
+                    console.log('Müdürlük filter değişti:', $(this).val());
+                    filterReports();
+                });
+                
+                $('#sortBy').on('select2:select select2:clear change', function() {
+                    console.log('Sort değişti:', $(this).val());
+                    filterReports();
+                });
+                
+                // Normal input için event listener
+                const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
                     searchInput.addEventListener('input', function() {
                         filterReports();
                     });
                 }
-                
-                if (sortBy) {
-                    sortBy.addEventListener('change', function() {
-                        filterReports();
-                    });
-                }
 
                 // Başlangıçta müdürlük raporunu göster
+                // İlk yüklemede müdürlük section'ını görünür yap
+                const mudurlukSection = document.getElementById('mudurlukSection');
+                if (mudurlukSection) {
+                    mudurlukSection.style.display = 'block';
+                    mudurlukSection.classList.add('active');
+                }
                 filterReports();
-            }, 100);
+            }, 500); // Select2 için daha uzun gecikme
         });
     </script>
 }
@@ -1131,6 +1194,8 @@
 .statistics-section.active {
     display: block !important; /* Aktif section'ı göster */
 }
+
+/* İlk section varsayılan olarak görünür - JavaScript ile kontrol edilecek */
 
 .hover-lift:hover {
     transform: translateY(-2px);

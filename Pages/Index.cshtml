@@ -10,7 +10,7 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <div class="hero-content text-white fade-in">
-                    <h1 class="display-4 fw-bold mb-4">
+                    <h1 class="display-4 fw-bold mb-4 text-white">
                         <i class="fas fa-project-diagram me-3"></i>
                         Proje Takip Sistemi
                     </h1>
@@ -76,9 +76,9 @@
                             <div class="stat-icon bg-primary-light">
                                 <i class="fas fa-project-diagram text-primary"></i>
                             </div>
-                            <div class="stat-trend text-success">
-                                <i class="fas fa-arrow-up me-1"></i>
-                                <small>+12%</small>
+                            <div class="stat-trend @(Model.ToplamProjelerArtis >= 0 ? "text-success" : "text-danger")">
+                                <i class="fas fa-arrow-@(Model.ToplamProjelerArtis >= 0 ? "up" : "down") me-1"></i>
+                                <small>@(Model.ToplamProjelerArtis >= 0 ? "+" : "")@Model.ToplamProjelerArtis%</small>
                             </div>
                         </div>
                         <div class="stat-content">
@@ -98,9 +98,9 @@
                             <div class="stat-icon bg-success-light">
                                 <i class="fas fa-play-circle text-success"></i>
                             </div>
-                            <div class="stat-trend text-success">
-                                <i class="fas fa-arrow-up me-1"></i>
-                                <small>+8%</small>
+                            <div class="stat-trend @(Model.AktifProjelerArtis >= 0 ? "text-success" : "text-danger")">
+                                <i class="fas fa-arrow-@(Model.AktifProjelerArtis >= 0 ? "up" : "down") me-1"></i>
+                                <small>@(Model.AktifProjelerArtis >= 0 ? "+" : "")@Model.AktifProjelerArtis%</small>
                             </div>
                         </div>
                         <div class="stat-content">
@@ -120,9 +120,9 @@
                             <div class="stat-icon bg-info-light">
                                 <i class="fas fa-check-circle text-info"></i>
                             </div>
-                            <div class="stat-trend text-success">
-                                <i class="fas fa-arrow-up me-1"></i>
-                                <small>+15%</small>
+                            <div class="stat-trend @(Model.TamamlananProjelerArtis >= 0 ? "text-success" : "text-danger")">
+                                <i class="fas fa-arrow-@(Model.TamamlananProjelerArtis >= 0 ? "up" : "down") me-1"></i>
+                                <small>@(Model.TamamlananProjelerArtis >= 0 ? "+" : "")@Model.TamamlananProjelerArtis%</small>
                             </div>
                         </div>
                         <div class="stat-content">
@@ -142,9 +142,9 @@
                             <div class="stat-icon bg-warning-light">
                                 <i class="fas fa-clock text-warning"></i>
                             </div>
-                            <div class="stat-trend text-warning">
-                                <i class="fas fa-minus me-1"></i>
-                                <small>-3%</small>
+                            <div class="stat-trend @(Model.BekleyenProjelerArtis >= 0 ? "text-success" : "text-danger")">
+                                <i class="fas fa-arrow-@(Model.BekleyenProjelerArtis >= 0 ? "up" : "down") me-1"></i>
+                                <small>@(Model.BekleyenProjelerArtis >= 0 ? "+" : "")@Model.BekleyenProjelerArtis%</small>
                             </div>
                         </div>
                         <div class="stat-content">
@@ -172,31 +172,36 @@
                 </h2>
             </div>
             <div class="col-lg-8">
-                <div class="activity-timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-marker bg-success"></div>
-                        <div class="timeline-content">
-                            <h6 class="mb-1">Yeni proje oluşturuldu</h6>
-                            <p class="text-muted mb-1">"E-Ticaret Platformu" projesi başlatıldı</p>
-                            <small class="text-muted">2 saat önce</small>
+                <div class="activity-timeline" style="max-height: 400px; overflow-y: auto;">
+                    @if (Model.SonAktiviteler.Any())
+                    {
+                        @foreach (var aktivite in Model.SonAktiviteler)
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker @(
+                                    aktivite.LogType.Contains("Eklendi") ? "bg-success" :
+                                    aktivite.LogType.Contains("Güncellendi") ? "bg-info" :
+                                    aktivite.LogType.Contains("Silindi") ? "bg-danger" :
+                                    "bg-primary"
+                                )"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">@aktivite.LogType</h6>
+                                    <p class="text-muted mb-1">@aktivite.LogContent</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">@aktivite.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                        <small class="text-muted"><i class="fas fa-user me-1"></i>@aktivite.Executor</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Henüz aktivite bulunmuyor.</p>
                         </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker bg-info"></div>
-                        <div class="timeline-content">
-                            <h6 class="mb-1">Proje güncellendi</h6>
-                            <p class="text-muted mb-1">"Mobil Uygulama" projesinde ilerleme kaydedildi</p>
-                            <small class="text-muted">5 saat önce</small>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-marker bg-warning"></div>
-                        <div class="timeline-content">
-                            <h6 class="mb-1">Yeni kullanıcı eklendi</h6>
-                            <p class="text-muted mb-1">Ahmet Yılmaz sisteme dahil edildi</p>
-                            <small class="text-muted">1 gün önce</small>
-                        </div>
-                    </div>
+                    }
                 </div>
             </div>
             <div class="col-lg-4">
@@ -209,21 +214,30 @@
                         <div class="weekly-stats">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-muted">Yeni Projeler</span>
-                                <span class="badge bg-success">3</span>
+                                <span class="badge bg-success">@Model.HaftalikYeniProjeler</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-muted">Tamamlanan</span>
-                                <span class="badge bg-info">2</span>
+                                <span class="badge bg-info">@Model.HaftalikTamamlananProjeler</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-muted">İlerlemeler</span>
+                                <span class="badge bg-warning">@Model.HaftalikIlerlemeler</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-muted">Aktif Kullanıcı</span>
-                                <span class="badge bg-primary">12</span>
+                                <span class="badge bg-primary">@Model.AktifKullanicilar</span>
                             </div>
                         </div>
+                        @{
+                            var toplamHedef = 20; // Haftalık hedef
+                            var tamamlanan = Model.HaftalikYeniProjeler + Model.HaftalikTamamlananProjeler + Model.HaftalikIlerlemeler;
+                            var yuzde = toplamHedef > 0 ? Math.Min((double)tamamlanan / toplamHedef * 100, 100) : 0;
+                        }
                         <div class="progress mb-2" style="height: 8px;">
-                            <div class="progress-bar bg-gradient" style="width: 68%"></div>
+                            <div class="progress-bar bg-gradient" style="width: @yuzde%"></div>
                         </div>
-                        <small class="text-muted">Haftalık hedefin %68'i tamamlandı</small>
+                        <small class="text-muted">Haftalık aktivitenin %@Math.Round(yuzde, 0)'i tamamlandı</small>
                     </div>
                 </div>
             </div>
