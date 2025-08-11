@@ -1,0 +1,365 @@
+@page
+@model ProjeTakip.Pages.LoginModel
+@{
+    Layout = null;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>
+        &nbsp;&nbsp;.::Kullanıcı Girişi::.
+    </title>
+</head>
+<body class="login">
+    <div class="main-container">
+        <div class="empty"></div>
+        <div class="rectangle"></div>
+        <div class="login-box main-content panel panel-default">
+
+            <section class="panel-body" style="padding:10px !important;">
+                <form asp-page="/Login" method="post" name="form" id="form" class="form-horizontal">
+                    <div class="group-3">
+                        <div class="line"></div>
+                        <div class="logo-iett"></div>
+                        <div class="logo-ibb"></div>
+               
+                        <span class="erp-web-entegrasyonu">İETT Proje Takip Sistemi</span>
+                        <div class="flex-row-b">
+                            <div class="rectangle-kullaniciadi"></div>
+                            <div class="vector"></div>
+                            <span class="kullanici-adi"></span>
+                            <input asp-for="Kimlik" name="Kimlik" type="text" id="tbUserName" class="rectangle-kullaniciadiText" required="required" placeholder="Kullanıcı ID">
+                        </div>
+                        <div class="flex-row-fa">
+                            <div class="rectangle-parola"></div>
+                            <div class="vector-4"></div>
+                            <span class="parola"></span>
+                            <input asp-for="Sifre" name="Sifre" type="password" id="tbPassword" class="rectangle-kullaniciadiText" required="required" placeholder="Şifre">
+                        </div>
+                        <div class="flex-row-ee">
+                            <span class="up-wrong">
+                                <b style="color:#ff0000">@Model.ErrorMessage</b>
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            </span>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <div class="" id="btnLogin" style="-khtml-user-select:none;">
+                                    <div class="flex-row">
+                                        <button class="login-button btn-signin dxbButtonSys btn-primary btn form-control dxbButton btn-block btn-lg dxbTSys">Giriş Yap</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bilgi-islem-dairesi">
+                            <span>Bilgi Teknolojileri Müdürlüğü  tarafından</span>
+                            <span class="heart">❤</span>
+                            <span>ile tasarlanmıştır.</span>
+                        </div>
+
+
+                    </div>
+                </form>
+                <div class="col-sm-9">
+
+
+                </div>
+
+            </section>
+        </div>
+
+
+        <style>
+            :root {
+                --default-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei UI", "Microsoft Yahei", "Source Han Sans CN", sans-serif;
+            }
+
+            body, html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+            }
+
+            .main-container,
+            .main-container * {
+                box-sizing: border-box;
+            }
+
+            input,
+            select,
+            textarea,
+            button {
+                outline: 0;
+            }
+
+            .main-container {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                background: #ffffff;
+                overflow: hidden;
+            }
+
+            .group-3 {
+                position: absolute;
+                width: 100%;
+                max-width: 450px;
+                max-height: 500px;
+                height: 100%;
+                padding-left: 50px;
+                padding-top: 180px;
+                top: 20%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 0px;
+                z-index: 6;
+                transform: translateX(-50%);
+                background: url(/images/login/c11c2b29-bf8a-491e-824a-ef6a53469b34.png) no-repeat center;
+                background-size: cover;
+                border-radius: 18px;
+                box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            }
+
+            .bilgi-islem-dairesi {
+                color: #0f3b84;
+                font-family: Inter, var(--default-font-family);
+                font-size: 12px;
+                line-height: 14.523px;
+                opacity: 0.6;
+                margin-top: 10%;
+            }
+
+            .heart {
+                position: relative;
+                color: #ff0808;
+                font-family: Inter, var(--default-font-family);
+                font-size: 12px;
+                line-height: 14.523px;
+                text-align: left;
+            }
+
+            .empty {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: url(/images/login/8bd7e51c69542687ab1094868965bac8a234b62f.png) no-repeat center;
+                background-size: cover;
+                opacity: 0.6;
+            }
+
+            .rectangle {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: rgba(240, 242, 245, 0.9);
+                z-index: 1;
+            }
+
+            .line {
+                position: absolute;
+                width: 1px;
+                height: 23%;
+                top: 5%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: url(/images/login/46557767-63d3-4e38-aab4-22ac248a38a9.png) no-repeat center;
+                background-size: cover;
+                z-index: 5;
+            }
+
+            .logo-iett {
+                background: url(/images/login/b0f6ff45dea2c80375cc66e3e019a5e5bf7f64f8.png) no-repeat center; 
+                position: absolute;
+                width: 100px;
+                height: 112px;
+                top: 5%;
+                left: 75%;
+                transform: translateX(-50%);
+                background-size: cover;
+                z-index: 3;
+            }
+
+            .logo-ibb {
+                position: absolute;
+                width: 90px;
+                height: 115px;
+                top: 5%;
+                left: 25%;
+                transform: translateX(-50%);
+                background: url(/images/login/0df5c809c339f8c94742b5c69154dc665b9b88cb.png) no-repeat center;
+                background-size: cover;
+                z-index: 4;
+            }
+
+            .logo-center {
+                position: absolute;
+                top: 4%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 130px;
+                height: 130px;
+                background: url(/images/login/TMS.png) no-repeat center;
+                background-size: contain;
+                z-index: 5;
+            }
+
+            .erp-web-entegrasyonu {
+                margin-left: 6%;
+                color: #0f3b84;
+                font-family: Poppins, var(--default-font-family);
+                font-size: 20px;
+                font-weight: bold;
+                z-index: 19;
+            }
+
+            .flex-row-b {
+                position: relative;
+                width: 90%;
+                height: 18%;
+                margin: 20px 0 0 0;
+                z-index: 17;
+            }
+
+            .rectangle-kullaniciadi {
+                position: absolute;
+                width: 80%;
+                height: 80%;
+                top: 0;
+                left: 0;
+                border: 1px solid #0f3b84;
+                z-index: 17;
+                overflow: hidden;
+                border-radius: 18px;
+            }
+
+            .rectangle-kullaniciadiText {
+                position: absolute;
+                width: 80%;
+                height: 80%;
+                padding-left: 15px;
+                top: 0;
+                left: 50px;
+                border: 1px solid #0f3b84;
+                z-index: 17;
+                overflow: hidden;
+                border-radius: 18px;
+            }
+
+            .rectangle-parola {
+                position: absolute;
+                width: 80%;
+                height: 80%;
+                top: 0;
+                left: 0;
+                border: 1px solid #0f3b84;
+                z-index: 15;
+                overflow: hidden;
+                border-radius: 18px;
+            }
+
+            .rectangle-parolaText {
+                position: absolute;
+                width: 80%;
+                height: 80%;
+                padding-left: 15px;
+                top: 0;
+                left: 50px;
+                border: 1px solid #0f3b84;
+                z-index: 15;
+                overflow: hidden;
+                border-radius: 18px;
+            }
+
+            .vector {
+                position: absolute;
+                width: 4.57%;
+                height: 26.57%;
+                top: 25%;
+                left: 6%;
+                background: url(/images/login/18f60619-77c2-42e9-bb7b-941fba168e90.png) no-repeat center;
+                background-size: 100% 100%;
+                z-index: 10;
+            }
+
+            .vector-4 {
+                position: absolute;
+                width: 4.57%;
+                height: 35%;
+                top: 25%;
+                left: 6%;
+                background: url(/images/login/52f6b9f3-9ccd-4464-9c20-a170e694430d.png) no-repeat center;
+                background-size: 100% 100%;
+                z-index: 9;
+            }
+
+            .flex-row-fa {
+                position: relative;
+                width: 90%;
+                height: 18%;
+                margin: 18px 0 0 0;
+                z-index: 20;
+            }
+
+            .flex-row-ee {
+                position: relative;
+                width: 50%;
+                height: 10%;
+                z-index: 21;
+            }
+
+            .forgot-password {
+                display: flex;
+                align-items: flex-start;
+                justify-content: flex-start;
+                position: absolute;
+                margin-left: 110%;
+                color: #0f3b84;
+                font-family: Poppins, var(--default-font-family);
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 18px;
+                white-space: nowrap;
+                z-index: 11;
+            }
+
+            .flex-row {
+                position: relative;
+                width: 90%;
+                height: 20%;
+                margin-top: 5%;
+                font-size: 0px;
+                z-index: 14;
+                overflow: visible auto;
+            }
+
+            .login-button {
+                position: absolute;
+                width: 95%;
+                height: 80%;
+                cursor: pointer;
+                background: #ed222a;
+                border: 1px solid #020202;
+                z-index: 13;
+                border-radius: 18px;
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+            }
+
+            .up-wrong {
+                color: red;
+                font-family: Poppins, var(--default-font-family);
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 18px;
+                white-space: nowrap;
+            }
+        </style>
+
+
+
+    </div>
+</body>
+</html>

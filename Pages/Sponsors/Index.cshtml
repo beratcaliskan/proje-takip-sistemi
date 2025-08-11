@@ -1,0 +1,487 @@
+@page
+@model ProjeTakip.Pages.Sponsors.IndexModel
+@{
+    ViewData["Title"] = "Sponsor Yönetimi";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+        <div class="card-header border-0 bg-white" style="padding: 2rem;">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-2 fw-bold text-dark">Sponsor Arama ve Filtreleme</h4>
+                    <p class="text-muted mb-0">Aradığınız sponsoru kolayca bulun</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addSponsorModal">
+                        <i class="fas fa-plus me-2"></i>Yeni Sponsor Ekle
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-6 mb-3">
+                    <div class="position-relative">
+                        <input type="text" id="searchInput" placeholder="Sponsor adı veya birim ara..." class="form-control form-control-lg" style="padding-left: 3rem;">
+                        <div class="position-absolute top-50 start-0 translate-middle-y ps-3">
+                            <i class="fas fa-search text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <select id="sortBy" class="form-select form-select-lg">
+                                <option value="" selected>Sıralama Seçin</option>
+                                <option value="sponsor-asc">Sponsor Adı (A-Z)</option>
+                                <option value="sponsor-desc">Sponsor Adı (Z-A)</option>
+                                <option value="birim-asc">Birim Adı (A-Z)</option>
+                                <option value="birim-desc">Birim Adı (Z-A)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Boş alan - gelecekte ek filtreler için -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card-body" style="padding: 2rem;">
+                    @if (Model.Sponsorlar.Any())
+                    {
+                        <div class="table-responsive">
+                             <table id="sponsorsTable" class="table table-hover mb-0">
+                                 <thead class="table-light">
+                                    <tr>
+                                        <th class="px-4 py-3 fw-bold" style="width: 25%;">ID</th>
+                                        <th class="px-4 py-3 fw-bold" style="width: 25%;">Sponsor Adı</th>
+                                        <th class="px-4 py-3 fw-bold" style="width: 25%;">Birim Adı</th>
+                                        <th class="px-4 py-3 fw-bold" style="width: 25%;">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                     @foreach (var sponsor in Model.Sponsorlar)
+                                     {
+                                         <tr>
+                                             <td class="px-4 py-3 fw-semibold" style="color: #1f2937;">#@sponsor.id</td>
+                                             <td class="px-4 py-3 fw-semibold" style="color: #1f2937;">@sponsor.SponsorAd</td>
+                                             <td class="px-4 py-3" style="color: #6b7280;">@sponsor.BirimAd</td>
+                                            <td class="px-4 py-3">
+                                                 <div class="d-flex gap-2">
+                                                     <button type="button" class="btn btn-sm btn-info" 
+                                                             onclick="viewSponsor(@sponsor.id, '@sponsor.SponsorAd', '@sponsor.BirimAd')">
+                                                         <i class="fas fa-eye me-1"></i>Detay
+                                                     </button>
+                                                     <button type="button" class="btn btn-sm btn-warning" 
+                                                             onclick="editSponsor(@sponsor.id, '@sponsor.SponsorAd', '@sponsor.BirimAd')">
+                                                         <i class="fas fa-edit me-1"></i>Düzenle
+                                                     </button>
+                                                     <button type="button" class="btn btn-sm btn-danger" 
+                                                             onclick="deleteSponsor(@sponsor.id, '@sponsor.SponsorAd')">
+                                                         <i class="fas fa-trash me-1"></i>Sil
+                                                     </button>
+                                                 </div>
+                                             </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                                <i class="fas fa-handshake" style="font-size: 2rem; color: #6c757d;"></i>
+                            </div>
+                            <h3 class="mt-4 fw-bold text-dark">Henüz sponsor bulunmamaktadır</h3>
+                            <p class="mt-2 text-muted">Başlamak için yeni bir sponsor ekleyin ve sponsorlarınızı yönetmeye başlayın.</p>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addSponsorModal">
+                                    <i class="fas fa-plus me-2"></i>Yeni Sponsor Ekle
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sponsor Ekleme Modal -->
+<div class="modal fade" id="addSponsorModal" tabindex="-1" aria-labelledby="addSponsorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <form id="addSponsorForm" method="post" asp-page-handler="AddSponsor">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-primary text-white border-0 py-4">
+                    <h5 class="modal-title" id="addSponsorModalLabel"><i class="fas fa-plus-circle me-2"></i>Yeni Sponsor Ekle</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-white p-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label asp-for="AddSponsor.SponsorAd" class="form-label">Sponsor Adı</label>
+                                <input asp-for="AddSponsor.SponsorAd" class="form-control" placeholder="Sponsor adını giriniz" required />
+                                <span asp-validation-for="AddSponsor.SponsorAd" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddSponsor.BirimAd" class="form-label">Birim Adı</label>
+                                <select asp-for="AddSponsor.BirimAd" class="form-select" required>
+                                    <option value="">Birim seçiniz</option>
+                                    @foreach (var birim in Model.Birimler)
+                                    {
+                                        <option value="@birim.BirimAd">@birim.BirimAd</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="AddSponsor.BirimAd" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light py-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>İptal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Sponsor Düzenleme Modal -->
+<div class="modal fade" id="editSponsorModal" tabindex="-1" aria-labelledby="editSponsorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <form id="editSponsorForm" method="post" asp-page-handler="EditSponsor">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="EditSponsor_id" name="EditSponsor.id" />
+                <div class="modal-header bg-warning text-dark border-0 py-4">
+                    <h5 class="modal-title" id="editSponsorModalLabel"><i class="fas fa-edit me-2"></i>Sponsor Düzenle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-white p-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="EditSponsor_SponsorAd" class="form-label">Sponsor Adı</label>
+                                <input asp-for="EditSponsor.SponsorAd" class="form-control" placeholder="Sponsor adını giriniz" id="EditSponsor_SponsorAd" required />
+                                <span asp-validation-for="EditSponsor.SponsorAd" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="EditSponsor_BirimAd" class="form-label">Birim Adı</label>
+                                <select asp-for="EditSponsor.BirimAd" class="form-select" id="EditSponsor_BirimAd" required>
+                                    <option value="">Birim seçiniz</option>
+                                    @foreach (var birim in Model.Birimler)
+                                    {
+                                        <option value="@birim.BirimAd">@birim.BirimAd</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="EditSponsor.BirimAd" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light py-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>İptal
+                    </button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save me-2"></i>Güncelle
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Sponsor Detay Modal -->
+<div class="modal fade" id="viewSponsorModal" tabindex="-1" aria-labelledby="viewSponsorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-info text-white border-0 py-4">
+                <h5 class="modal-title" id="viewSponsorModalLabel"><i class="fas fa-eye me-2"></i>Sponsor Detayları</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-white p-4">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ID</label>
+                            <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewSponsor_id"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Sponsor Adı</label>
+                            <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewSponsor_SponsorAd"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Birim Adı</label>
+                            <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewSponsor_BirimAd"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Debounce fonksiyonu - performans için
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Türkçe karakter normalizasyonu
+        function normalizeText(text) {
+            if (!text) return '';
+            // Önce Türkçe karakterleri değiştir, sonra küçük harfe çevir
+            return text
+                .replace(/Ğ/g, 'G')
+                .replace(/Ü/g, 'U')
+                .replace(/Ş/g, 'S')
+                .replace(/İ/g, 'I')
+                .replace(/Ö/g, 'O')
+                .replace(/Ç/g, 'C')
+                .replace(/ğ/g, 'g')
+                .replace(/ü/g, 'u')
+                .replace(/ş/g, 's')
+                .replace(/ı/g, 'i')
+                .replace(/ö/g, 'o')
+                .replace(/ç/g, 'c')
+                .toLowerCase();
+        }
+        
+        // Orijinal sıralama durumunu saklamak için
+        let originalRowOrder = [];
+        
+        // Sayfa yüklendiğinde orijinal sıralamayı kaydet
+        function saveOriginalOrder() {
+            const table = document.getElementById('sponsorsTable');
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                originalRowOrder = Array.from(tbody.querySelectorAll('tr')).map(row => row.cloneNode(true));
+            }
+        }
+        
+        // Filtreleme ve sıralama fonksiyonu
+        function filterAndSortSponsors() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const sortValue = document.getElementById('sortBy').value;
+            const table = document.getElementById('sponsorsTable');
+            const tbody = table.querySelector('tbody');
+            
+            // Arama terimi boşsa reset davranışı
+            if (searchTerm === '') {
+                // Sıralama dropdown'ını sıfırla
+                document.getElementById('sortBy').value = '';
+                
+                // Orijinal sıralamayı geri yükle
+                tbody.innerHTML = '';
+                originalRowOrder.forEach(row => {
+                    tbody.appendChild(row.cloneNode(true));
+                });
+                
+                // Sonuç sayısını güncelle
+                updateResultCount(originalRowOrder.length, originalRowOrder.length);
+                return;
+            }
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Filtreleme
+            const filteredRows = rows.filter(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return false;
+                
+                // Arama filtresi - Türkçe karakter normalizasyonu ile
+                const sponsorAd = normalizeText(cells[1].textContent);
+                const birimAd = normalizeText(cells[2].textContent);
+                const normalizedSearchTerm = normalizeText(searchTerm);
+                
+                const searchMatch = searchTerm === '' ||
+                    sponsorAd.includes(normalizedSearchTerm) ||
+                    birimAd.includes(normalizedSearchTerm) ||
+                    sponsorAd.split(' ').some(word => word.startsWith(normalizedSearchTerm)) ||
+                    birimAd.split(' ').some(word => word.startsWith(normalizedSearchTerm));
+                
+                return searchMatch;
+            });
+            
+            // Sıralama (sadece sıralama seçilmişse)
+            if (sortValue) {
+                filteredRows.sort((a, b) => {
+                    const aCells = a.querySelectorAll('td');
+                    const bCells = b.querySelectorAll('td');
+                    
+                    switch(sortValue) {
+                        case 'sponsor-asc':
+                            return aCells[1].textContent.localeCompare(bCells[1].textContent, 'tr');
+                        case 'sponsor-desc':
+                            return bCells[1].textContent.localeCompare(aCells[1].textContent, 'tr');
+                        case 'birim-asc':
+                            return aCells[2].textContent.localeCompare(bCells[2].textContent, 'tr');
+                        case 'birim-desc':
+                            return bCells[2].textContent.localeCompare(aCells[2].textContent, 'tr');
+                        default:
+                            return 0;
+                    }
+                });
+            }
+            
+            // Tabloyu güncelle
+            tbody.innerHTML = '';
+            filteredRows.forEach(row => tbody.appendChild(row));
+            
+            // Sonuç sayısını güncelle
+            updateResultCount(filteredRows.length, originalRowOrder.length);
+        }
+        
+        // Sonuç sayısını güncelleme fonksiyonu
+        function updateResultCount(filtered, total) {
+            let countElement = document.getElementById('resultCount');
+            if (!countElement) {
+                countElement = document.createElement('div');
+                countElement.id = 'resultCount';
+                countElement.className = 'text-sm text-slate-600 mb-4 d-flex align-items-center justify-content-between';
+                countElement.style.cssText = 'padding: 0.75rem 1rem; background: #f8f9fa; border-radius: 0.5rem; border-left: 4px solid #0d6efd;';
+                const tableContainer = document.getElementById('sponsorsTable').parentElement;
+                tableContainer.insertBefore(countElement, document.getElementById('sponsorsTable'));
+            }
+            
+            const countText = filtered === total ?
+                `<i class="fas fa-list-ul me-2 text-primary"></i>Toplam <strong>${total}</strong> sponsor gösteriliyor` :
+                `<i class="fas fa-filter me-2 text-warning"></i><strong>${total}</strong> sponsordan <strong class="text-primary">${filtered}</strong> tanesi gösteriliyor`;
+            
+            // Temizleme butonu ekle (sadece filtreleme aktifse)
+            const clearButton = filtered !== total ? 
+                `<button class="btn btn-sm btn-outline-secondary ms-2" onclick="clearAllFilters()" title="Filtreleri Temizle">
+                    <i class="fas fa-times me-1"></i>Temizle
+                </button>` : '';
+            
+            countElement.innerHTML = `<span>${countText}</span><span>${clearButton}</span>`;
+        }
+        
+        // Tüm filtreleri temizleme fonksiyonu
+        function clearAllFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortBy').value = '';
+            filterAndSortSponsors();
+            document.getElementById('searchInput').focus();
+        }
+        
+        // Arama ve filtreleme event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const sortBy = document.getElementById('sortBy');
+            
+            // Orijinal sıralamayı kaydet
+            saveOriginalOrder();
+            
+            if (searchInput && sortBy) {
+                // Debounced arama - performans için 300ms gecikme
+                const debouncedFilter = debounce(filterAndSortSponsors, 300);
+                
+                // Arama input eventi
+                searchInput.addEventListener('input', debouncedFilter);
+                
+                // Sıralama eventi
+                sortBy.addEventListener('change', filterAndSortSponsors);
+                
+                // Ctrl+A ile tümünü seç
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'a') {
+                        e.preventDefault();
+                        searchInput.select();
+                    }
+                });
+                
+                // ESC tuşu ile arama temizleme
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        searchInput.value = '';
+                        filterAndSortSponsors();
+                        searchInput.focus();
+                    }
+                });
+                
+                // Arama input'una odaklanma kısayolu (Ctrl+F)
+                document.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'f') {
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                });
+            }
+        });
+
+        // Sponsor görüntüleme fonksiyonu
+        function viewSponsor(id, sponsorAd, birimAd) {
+            document.getElementById('ViewSponsor_id').textContent = '#' + id;
+            document.getElementById('ViewSponsor_SponsorAd').textContent = sponsorAd;
+            document.getElementById('ViewSponsor_BirimAd').textContent = birimAd;
+            
+            var modal = new bootstrap.Modal(document.getElementById('viewSponsorModal'));
+            modal.show();
+        }
+
+        // Sponsor düzenleme fonksiyonu
+        function editSponsor(id, sponsorAd, birimAd) {
+            document.getElementById('EditSponsor_id').value = id;
+            document.getElementById('EditSponsor_SponsorAd').value = sponsorAd;
+            document.getElementById('EditSponsor_BirimAd').value = birimAd;
+            
+            var modal = new bootstrap.Modal(document.getElementById('editSponsorModal'));
+            modal.show();
+        }
+
+        // Sponsor silme fonksiyonu
+        function deleteSponsor(id, sponsorAd) {
+            if (confirm('"' + sponsorAd + '" adlı sponsoru silmek istediğinizden emin misiniz?')) {
+                // Form oluştur ve gönder
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '?handler=DeleteSponsor';
+                
+                // Anti-forgery token ekle
+                var tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                form.appendChild(tokenInput);
+                
+                // ID parametresi ekle
+                var idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = id;
+                form.appendChild(idInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+}

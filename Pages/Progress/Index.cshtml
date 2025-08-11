@@ -1,0 +1,824 @@
+@page
+@model ProjeTakip.Pages.Progress.IndexModel
+@{
+    ViewData["Title"] = "İlerlemeler ve Gantt Aşamaları";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 rounded-xl">
+                <div class="card-header bg-gradient-primary text-white border-0 py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-tasks me-2"></i>İlerlemeler ve Gantt Aşamaları
+                        </h4>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs mb-4" id="progressTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="ilerleme-tab" data-bs-toggle="tab" data-bs-target="#ilerleme" type="button" role="tab">
+                                <i class="fas fa-chart-line me-2"></i>İlerlemeler
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="gantt-tab" data-bs-toggle="tab" data-bs-target="#gantt" type="button" role="tab">
+                                <i class="fas fa-calendar-alt me-2"></i>Gantt Aşamaları
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="progressTabContent">
+                        <!-- İlerlemeler Tab -->
+                        <div class="tab-pane fade show active" id="ilerleme" role="tabpanel">
+                            <!-- Search and Add Section -->
+                            <div class="row mb-4">
+                                <div class="col-md-8">
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="fas fa-search text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0" id="ileremeSearch" placeholder="İlerleme aşaması ara...">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addIleremeModal">
+                                        <i class="fas fa-plus me-2"></i>Yeni İlerleme
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- İlerlemeler Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-dark">
+                                        <tr class="text-center">
+                                            <th style="width: 6%;">ID</th>
+                                            <th style="width: 12%;">Proje</th>
+                                            <th style="width: 12%;">Gantt Aşama</th>
+                                            <th style="width: 18%;">İlerleme</th>
+                                            <th style="width: 8%;">%</th>
+                                            <th style="width: 10%;">Tarih</th>
+                                            <th style="width: 12%;">Kim Ekledi</th>
+                                            <th style="width: 22%;">İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ileremeTableBody">
+                                        @if (Model.IlerlemeListe != null && Model.IlerlemeListe.Any())
+                                        {
+                                            @foreach (var ilerleme in Model.IlerlemeListe)
+                                            {
+                                                <tr class="text-center">
+                                                    <td class="fw-bold">@ilerleme.id</td>
+                                                    <td>@(ilerleme.Proje?.ProjeAd ?? "Bilinmiyor")</td>
+                                                    <td>@(ilerleme.GanttAsama?.Asama ?? "Bilinmiyor")</td>
+                                                    <td>@ilerleme.IlerlemeTanimi</td>
+                                                    <td>
+                                                        <span class="badge bg-primary">@ilerleme.TamamlanmaYuzdesi%</span>
+                                                    </td>
+                                                    <td>@ilerleme.IlerlemeTarihi.ToString("dd.MM.yyyy")</td>
+                                                    <td>
+                                                        <span class="badge bg-info">@(ilerleme.EkleyenKullanici?.AdSoyad ?? "Bilinmiyor")</span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex gap-2 justify-content-center">
+                                                            <button type="button" class="btn btn-sm btn-warning" 
+                                                                    onclick="editIlerleme(@ilerleme.id, @ilerleme.ProjeID, @ilerleme.GanttID, '@ilerleme.IlerlemeTanimi', @ilerleme.TamamlanmaYuzdesi, '@(ilerleme.Aciklama ?? "")')">
+                                                                <i class="fas fa-edit me-1"></i>Düzenle
+                                                            </button>
+                                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                                    onclick="deleteIlerleme(@ilerleme.id, '@ilerleme.IlerlemeTanimi')">
+                                                                <i class="fas fa-trash me-1"></i>Sil
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="8" class="text-center text-muted py-4">
+                                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                                    Henüz ilerleme kaydı bulunmamaktadır.
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Gantt Aşamaları Tab -->
+                        <div class="tab-pane fade" id="gantt" role="tabpanel">
+                            <!-- Search and Add Section -->
+                            <div class="row mb-4">
+                                <div class="col-md-8">
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="fas fa-search text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0" id="ganttSearch" placeholder="Gantt aşaması ara...">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addGanttModal">
+                                        <i class="fas fa-plus me-2"></i>Yeni Gantt Aşaması
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Gantt Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-dark">
+                                        <tr class="text-center">
+                                            <th style="width: 8%;">ID</th>
+                                            <th style="width: 15%;">Proje</th>
+                                            <th style="width: 20%;">Aşama</th>
+                                            <th style="width: 12%;">Başlangıç</th>
+                                            <th style="width: 12%;">Bitiş</th>
+                                            <th style="width: 8%;">Gün</th>
+                                            <th style="width: 8%;">Sıra</th>
+                                            <th style="width: 17%;">İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ganttTableBody">
+                                        @if (Model.GanttListe != null && Model.GanttListe.Any())
+                                        {
+                                            @foreach (var gantt in Model.GanttListe)
+                                            {
+                                                <tr class="text-center">
+                                                    <td class="fw-bold">@gantt.id</td>
+                                                    <td>@(gantt.Proje?.ProjeAd ?? "Bilinmiyor")</td>
+                                                    <td>@gantt.Asama</td>
+                                                    <td>@(gantt.Baslangic?.ToString("dd.MM.yyyy") ?? "-")</td>
+                                                    <td>@(gantt.Bitis?.ToString("dd.MM.yyyy") ?? "-")</td>
+                                                    <td>@gantt.Gun</td>
+                                                    <td>@gantt.Sira</td>
+                                                    <td>
+                                                        <div class="d-flex gap-2 justify-content-center">
+                                                            <button type="button" class="btn btn-sm btn-warning" 
+                                                                    onclick="editGantt(@gantt.id, @gantt.ProjeID, '@gantt.Asama', '@(gantt.Baslangic?.ToString("yyyy-MM-dd") ?? "")', '@(gantt.Bitis?.ToString("yyyy-MM-dd") ?? "")', @gantt.Gun, @gantt.Sira)">
+                                                                <i class="fas fa-edit me-1"></i>Düzenle
+                                                            </button>
+                                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                                    onclick="deleteGantt(@gantt.id, '@gantt.Asama')">
+                                                                <i class="fas fa-trash me-1"></i>Sil
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="8" class="text-center text-muted py-4">
+                                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                                    Henüz Gantt aşaması bulunmamaktadır.
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add İlerleme Modal -->
+<div class="modal fade" id="addIleremeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-primary text-white border-0 py-4">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Yeni İlerleme Kaydı</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="AddIlerleme">
+                <div class="modal-body bg-white p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Proje</label>
+                                <select name="projeId" id="addProjeSelect" class="form-select" required onchange="loadGanttStages(this.value, 'addGanttSelect')">
+                                    <option value="">Proje seçiniz</option>
+                                    @if (Model.ProjeListe != null)
+                                    {
+                                        @foreach (var proje in Model.ProjeListe)
+                                        {
+                                            <option value="@proje.ProjeID">@proje.ProjeAd</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Gantt Aşaması</label>
+                                <select name="ganttId" id="addGanttSelect" class="form-select" required>
+                                    <option value="">Önce proje seçiniz</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="form-label">İlerleme Tanımı</label>
+                                <input name="ilerlemeTanimi" class="form-control" placeholder="İlerleme tanımını giriniz" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Tamamlanma %</label>
+                                <input name="tamamlanmaYuzdesi" type="number" min="0" max="100" class="form-control" placeholder="0-100" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama (Opsiyonel)</label>
+                        <textarea name="aciklama" class="form-control" rows="3" placeholder="Detaylı açıklama giriniz"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light p-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary" id="addIleremeSubmitBtn">
+                        <span class="btn-text">Kaydet</span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Kaydediliyor...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Gantt Modal -->
+<div class="modal fade" id="addGanttModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-primary text-white border-0 py-4">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Yeni Gantt Aşaması</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="AddGantt">
+                <div class="modal-body bg-white p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AddGantt.ProjeID" class="form-label">Proje</label>
+                                <select asp-for="AddGantt.ProjeID" class="form-select" required>
+                                    <option value="">Proje seçiniz</option>
+                                    @if (Model.ProjeListe != null)
+                                    {
+                                        @foreach (var proje in Model.ProjeListe)
+                                        {
+                                            <option value="@proje.ProjeID">@proje.ProjeAd</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="AddGantt.ProjeID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AddGantt.Asama" class="form-label">Aşama Adı</label>
+                                <input asp-for="AddGantt.Asama" class="form-control" placeholder="Aşama adını giriniz" required />
+                                <span asp-validation-for="AddGantt.Asama" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AddGantt.Baslangic" class="form-label">Başlangıç Tarihi</label>
+                                <input asp-for="AddGantt.Baslangic" type="date" class="form-control" />
+                                <span asp-validation-for="AddGantt.Baslangic" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AddGantt.Bitis" class="form-label">Bitiş Tarihi</label>
+                                <input asp-for="AddGantt.Bitis" type="date" class="form-control" />
+                                <span asp-validation-for="AddGantt.Bitis" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AddGantt.Gun" class="form-label">Gün Sayısı</label>
+                                <input asp-for="AddGantt.Gun" type="number" class="form-control" placeholder="Gün sayısını giriniz" min="0" />
+                                <span asp-validation-for="AddGantt.Gun" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AddGantt.Sira" class="form-label">Sıra</label>
+                                <input asp-for="AddGantt.Sira" type="number" class="form-control" placeholder="Sıra numarasını giriniz" min="1" />
+                                <span asp-validation-for="AddGantt.Sira" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light p-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary" id="addGanttSubmitBtn">
+                        <span class="btn-text">Kaydet</span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Kaydediliyor...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit İlerleme Modal -->
+<div class="modal fade" id="editIleremeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-warning text-white border-0 py-4">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>İlerleme Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="UpdateIlereme">
+                <div class="modal-body bg-white p-4">
+                    <input type="hidden" id="EditIlerleme_id" name="id" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Proje</label>
+                                <select id="EditIlerleme_projeId" name="projeId" class="form-select" onchange="loadGanttStages(this.value, 'EditIlerleme_ganttId')" required>
+                                    <option value="">Proje seçiniz</option>
+                                    @if (Model.ProjeListe != null)
+                                    {
+                                        @foreach (var proje in Model.ProjeListe)
+                                        {
+                                            <option value="@proje.ProjeID">@proje.ProjeAd</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Gantt Aşaması</label>
+                                <select id="EditIlerleme_ganttId" name="ganttId" class="form-select" required>
+                                    <option value="">Gantt aşaması seçiniz</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">İlerleme Tanımı</label>
+                                <input type="text" id="EditIlerleme_ilerlemeTanimi" name="ilerlemeTanimi" class="form-control" placeholder="İlerleme tanımını giriniz" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tamamlanma Yüzdesi</label>
+                                <input type="number" id="EditIlerleme_tamamlanmaYuzdesi" name="tamamlanmaYuzdesi" class="form-control" placeholder="0-100" min="0" max="100" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama</label>
+                        <textarea id="EditIlerleme_aciklama" name="aciklama" class="form-control" rows="3" placeholder="Açıklama giriniz"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light p-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-warning">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Gantt Modal -->
+<div class="modal fade" id="editGanttModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-warning text-white border-0 py-4">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Gantt Aşaması Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="UpdateGantt">
+                <div class="modal-body bg-white p-4">
+                    <input type="hidden" id="EditGantt_id" name="id" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Proje</label>
+                                <select id="EditGantt_projeId" name="projeId" class="form-select" required>
+                                    <option value="">Proje seçiniz</option>
+                                    @if (Model.ProjeListe != null)
+                                    {
+                                        @foreach (var proje in Model.ProjeListe)
+                                        {
+                                            <option value="@proje.ProjeID">@proje.ProjeAd</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Aşama Adı</label>
+                                <input type="text" id="EditGantt_asama" name="asama" class="form-control" placeholder="Aşama adını giriniz" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Başlangıç Tarihi</label>
+                                <input type="date" id="EditGantt_baslangic" name="baslangic" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Bitiş Tarihi</label>
+                                <input type="date" id="EditGantt_bitis" name="bitis" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Gün Sayısı</label>
+                                <input type="number" id="EditGantt_gun" name="gun" class="form-control" placeholder="Gün sayısını giriniz" min="0" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Sıra</label>
+                                <input type="number" id="EditGantt_sira" name="sira" class="form-control" placeholder="Sıra numarasını giriniz" min="1" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light p-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-warning">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete İlerleme Modal -->
+<div class="modal fade" id="deleteIleremeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-danger text-white border-0 py-4">
+                <h5 class="modal-title"><i class="fas fa-trash me-2"></i>İlerleme Sil</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body bg-white p-4">
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                    <h5>Emin misiniz?</h5>
+                    <p class="text-muted mb-0">"<span id="deleteIleremeText"></span>" ilerlemesini silmek istediğinizden emin misiniz?</p>
+                    <p class="text-danger small mt-2">Bu işlem geri alınamaz!</p>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light p-4 justify-content-center">
+                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteIlerleme">
+                    <i class="fas fa-trash me-1"></i>Sil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Gantt Modal -->
+<div class="modal fade" id="deleteGanttModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-danger text-white border-0 py-4">
+                <h5 class="modal-title"><i class="fas fa-trash me-2"></i>Gantt Aşaması Sil</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body bg-white p-4">
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                    <h5>Emin misiniz?</h5>
+                    <p class="text-muted mb-0">"<span id="deleteGanttText"></span>" aşamasını silmek istediğinizden emin misiniz?</p>
+                    <p class="text-danger small mt-2">Bu işlem geri alınamaz!</p>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light p-4 justify-content-center">
+                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteGantt">
+                    <i class="fas fa-trash me-1"></i>Sil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // İlerleme arama fonksiyonu
+        document.getElementById('ileremeSearch').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#ileremeTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Gantt arama fonksiyonu
+        document.getElementById('ganttSearch').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#ganttTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Proje seçildiğinde Gantt aşamalarını yükle
+        function loadGanttStages(projeId, targetSelectId) {
+            const ganttSelect = document.getElementById(targetSelectId);
+            ganttSelect.innerHTML = '<option value="">Gantt aşaması seçiniz</option>';
+            
+            if (!projeId) return;
+            
+            // Backend'den Gantt aşamalarını getir
+            fetch(`?handler=GanttStages&projeId=${projeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(gantt => {
+                        const option = document.createElement('option');
+                        option.value = gantt.id;
+                        option.textContent = gantt.asama;
+                        ganttSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Gantt aşamaları yüklenirken hata:', error);
+                });
+        }
+
+        // İlerleme düzenleme fonksiyonu
+        function editIlerleme(id, projeId, ganttId, ilerlemeTanimi, tamamlanmaYuzdesi, aciklama) {
+            document.getElementById('EditIlerleme_id').value = id;
+            
+            // Select2 elementleri için özel işlem
+            $('#EditIlerleme_projeId').val(projeId).trigger('change');
+            
+            document.getElementById('EditIlerleme_ilerlemeTanimi').value = ilerlemeTanimi;
+            document.getElementById('EditIlerleme_tamamlanmaYuzdesi').value = tamamlanmaYuzdesi;
+            document.getElementById('EditIlerleme_aciklama').value = aciklama;
+            
+            // Gantt aşamalarını yükle ve seçili olanı ayarla
+            loadGanttStages(projeId, 'EditIlerleme_ganttId');
+            setTimeout(() => {
+                $('#EditIlerleme_ganttId').val(ganttId).trigger('change');
+            }, 100);
+            
+            new bootstrap.Modal(document.getElementById('editIleremeModal')).show();
+        }
+
+        // Gantt düzenleme fonksiyonu
+        function editGantt(id, projeId, asama, baslangic, bitis, gun, sira) {
+            document.getElementById('EditGantt_id').value = id;
+            
+            // Select2 elementleri için özel işlem
+            $('#EditGantt_projeId').val(projeId).trigger('change');
+            
+            document.getElementById('EditGantt_asama').value = asama;
+            document.getElementById('EditGantt_baslangic').value = baslangic;
+            document.getElementById('EditGantt_bitis').value = bitis;
+            document.getElementById('EditGantt_gun').value = gun;
+            document.getElementById('EditGantt_sira').value = sira;
+            new bootstrap.Modal(document.getElementById('editGanttModal')).show();
+        }
+
+        // Cooldown değişkenleri
+        let lastIleremeAddTime = 0;
+        const COOLDOWN_TIME = 30000; // 30 saniye
+
+        // İlerleme silme fonksiyonu
+        function deleteIlerleme(id, ilerlemeTanimi) {
+            document.getElementById('deleteIleremeText').textContent = ilerlemeTanimi;
+            
+            // Önceki event listener'ları temizle
+            const confirmBtn = document.getElementById('confirmDeleteIlerleme');
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            
+            // Yeni event listener ekle
+            newConfirmBtn.addEventListener('click', function() {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '?handler=DeleteIlereme';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'id';
+                input.value = id;
+                
+                const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (token) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '__RequestVerificationToken';
+                    tokenInput.value = token.value;
+                    form.appendChild(tokenInput);
+                }
+                
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            });
+            
+            new bootstrap.Modal(document.getElementById('deleteIleremeModal')).show();
+        }
+
+        // Gantt silme fonksiyonu
+        function deleteGantt(id, asama) {
+            document.getElementById('deleteGanttText').textContent = asama;
+            
+            // Önceki event listener'ları temizle
+            const confirmBtn = document.getElementById('confirmDeleteGantt');
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            
+            // Yeni event listener ekle
+            newConfirmBtn.addEventListener('click', function() {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '?handler=DeleteGantt';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'id';
+                input.value = id;
+                
+                const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (token) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '__RequestVerificationToken';
+                    tokenInput.value = token.value;
+                    form.appendChild(tokenInput);
+                }
+                
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            });
+            
+            new bootstrap.Modal(document.getElementById('deleteGanttModal')).show();
+        }
+
+        // Cooldown kontrolü ve buton durumu
+        function checkCooldown() {
+            const currentTime = Date.now();
+            const timeSinceLastAdd = currentTime - lastIleremeAddTime;
+            const remainingTime = COOLDOWN_TIME - timeSinceLastAdd;
+            
+            const addButton = document.querySelector('[data-bs-target="#addIleremeModal"]');
+            
+            if (remainingTime > 0) {
+                addButton.disabled = true;
+                addButton.innerHTML = `<i class="fas fa-clock me-2"></i>Bekleyin (${Math.ceil(remainingTime / 1000)}s)`;
+                
+                setTimeout(checkCooldown, 1000);
+            } else {
+                addButton.disabled = false;
+                addButton.innerHTML = '<i class="fas fa-plus me-2"></i>Yeni İlerleme';
+            }
+        }
+
+        // Form submit kontrolü
+        function handleFormSubmit(formSelector, buttonId) {
+            const form = document.querySelector(formSelector);
+            const button = document.getElementById(buttonId);
+            
+            if (form && button) {
+                let isSubmitting = false;
+                
+                form.addEventListener('submit', function(e) {
+                    if (isSubmitting) {
+                        e.preventDefault();
+                        return false;
+                    }
+                    
+                    isSubmitting = true;
+                    button.disabled = true;
+                    
+                    // Loading animasyonunu göster
+                    const btnText = button.querySelector('.btn-text');
+                    const btnLoading = button.querySelector('.btn-loading');
+                    
+                    if (btnText && btnLoading) {
+                        btnText.classList.add('d-none');
+                        btnLoading.classList.remove('d-none');
+                    }
+                    
+                    // İlerleme ekleme için cooldown başlat
+                    if (buttonId === 'addIleremeSubmitBtn') {
+                        lastIleremeAddTime = Date.now();
+                        setTimeout(checkCooldown, 100);
+                    }
+                });
+                
+                // Modal kapandığında butonu sıfırla
+                const modal = form.closest('.modal');
+                if (modal) {
+                    modal.addEventListener('hidden.bs.modal', function() {
+                        isSubmitting = false;
+                        button.disabled = false;
+                        
+                        const btnText = button.querySelector('.btn-text');
+                        const btnLoading = button.querySelector('.btn-loading');
+                        
+                        if (btnText && btnLoading) {
+                            btnText.classList.remove('d-none');
+                            btnLoading.classList.add('d-none');
+                        }
+                    });
+                }
+            }
+        }
+
+        // İlerleme ekleme formunu dinle
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form submit kontrollerini başlat
+            handleFormSubmit('#addIleremeModal form', 'addIleremeSubmitBtn');
+            handleFormSubmit('#addGanttModal form', 'addGanttSubmitBtn');
+            
+            // Sayfa yüklendiğinde cooldown kontrolü
+            checkCooldown();
+        });
+
+        // Toast mesajları
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+            {
+                <text>
+                showToast('@TempData["SuccessMessage"]', 'success');
+                </text>
+            }
+            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+            {
+                <text>
+                showToast('@TempData["ErrorMessage"]', 'error');
+                </text>
+            }
+        });
+
+        function showToast(message, type) {
+            const toastContainer = document.getElementById('toast-container') || createToastContainer();
+            const toastClass = type === 'success' ? 'bg-success' : 'bg-danger';
+            const toastHtml = `
+                <div class="toast align-items-center text-white ${toastClass} border-0 mb-2" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>`;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = toastContainer.lastElementChild;
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                toastElement.remove();
+            });
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '1055';
+            document.body.appendChild(container);
+            return container;
+        }
+    </script>
+}

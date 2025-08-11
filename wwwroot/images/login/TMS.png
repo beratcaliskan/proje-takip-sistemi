@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130">
+  <rect width="130" height="130" fill="#0f3b84" rx="15"/>
+  <text x="65" y="45" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">TMS</text>
+  <text x="65" y="70" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">Takip</text>
+  <text x="65" y="85" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">Yönetim</text>
+  <text x="65" y="100" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">Sistemi</text>
+</svg>

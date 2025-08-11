@@ -1,0 +1,2597 @@
+@page
+@model ProjeTakip.Pages.Projects.IndexModel
+@{
+    ViewData["Title"] = "Proje Yönetimi";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+        <div class="card-header border-0 bg-white" style="padding: 2rem;">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-2 fw-bold text-dark">Proje Arama ve Filtreleme</h4>
+                    <p class="text-muted mb-0">Aradığınız projeyi kolayca bulun</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                        <i class="fas fa-plus me-2"></i>Yeni Proje Ekle
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-6 mb-3">
+                    <div class="position-relative">
+                        <input type="text" id="searchInput" placeholder="Proje adı, müdürlük veya başkanlık ara..." class="form-control form-control-lg" style="padding-left: 3rem;">
+                        <div class="position-absolute top-50 start-0 translate-middle-y ps-3">
+                            <i class="fas fa-search text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <select id="statusFilter" class="form-select form-select-lg">
+                                <option value="">Tüm Durumlar</option>
+                                <option value="1">Onay Bekliyor</option>
+                                <option value="2">Planlama</option>
+                                <option value="3">Devam Ediyor</option>
+                                <option value="4">Tamamlandı</option>
+                                <option value="5">İptal Edildi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <select id="sortBy" class="form-select form-select-lg">
+                                <option value="" selected>Sıralama Seçin</option>
+                                <option value="name-asc">Proje Adı (A-Z)</option>
+                                <option value="name-desc">Proje Adı (Z-A)</option>
+                                <option value="date-asc">Başlangıç (Eski→Yeni)</option>
+                                <option value="date-desc">Başlangıç (Yeni→Eski)</option>
+                                <option value="status-asc">Durum (A-Z)</option>
+                                <option value="status-desc">Durum (Z-A)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card-body" style="padding: 2rem;">
+                    @if (Model.Projeler.Any())
+                    {
+                        <div class="table-responsive">
+                             <table id="projectsTable" class="table table-hover mb-0">
+                                 <thead class="table-light">
+                                    <tr>
+                                        <th class="px-4 py-3 fw-bold text-center">ID</th>
+                                        <th class="px-4 py-3 fw-bold text-center">Proje Adı</th>
+                                        <th class="px-4 py-3 fw-bold text-center">Müdürlük</th>
+                                        <th class="px-4 py-3 fw-bold text-center">Başkanlık</th>
+                                        <th class="px-4 py-3 fw-bold text-center">Başlangıç</th>
+                                        <th class="px-4 py-3 fw-bold text-center">Bitiş</th>
+                                        <th class="px-4 py-3 fw-bold text-center">Durum</th>
+                                        <th class="px-4 py-3 fw-bold text-center">Personel</th>
+                                        <th class="px-4 py-3 fw-bold text-center">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                     @foreach (var proje in Model.Projeler)
+                                     {
+                                         <tr>
+                                             <td class="px-4 py-3 fw-semibold text-center" style="color: #1f2937;">#@proje.ProjeID</td>
+                                             <td class="px-4 py-3 fw-semibold" style="color: #1f2937;">@proje.ProjeAd</td>
+                                             <td class="px-4 py-3" style="color: #6b7280;">@proje.Mudurluk</td>
+                                             <td class="px-4 py-3" style="color: #6b7280;">@proje.Baskanlik</td>
+                                             <td class="px-4 py-3" style="color: #6b7280;">@(proje.bas?.ToString("dd.MM.yyyy") ?? "-")</td>
+                                             <td class="px-4 py-3" style="color: #6b7280;">@(proje.bit?.ToString("dd.MM.yyyy") ?? "-")</td>
+                                             <td class="px-4 py-3 text-center">
+                                                 @switch (proje.Durum)
+                                                 {
+                                                     case 1:
+                                                         <span class="badge bg-warning text-dark">Onay Bekliyor</span>
+                                                         break;
+                                                     case 2:
+                                                         <span class="badge bg-info text-dark">Planlama</span>
+                                                         break;
+                                                     case 3:
+                                                         <span class="badge bg-primary">Devam Ediyor</span>
+                                                         break;
+                                                     case 4:
+                                                         <span class="badge bg-success">Tamamlandı</span>
+                                                         break;
+                                                     case 5:
+                                                         <span class="badge bg-danger">İptal Edildi</span>
+                                                         break;
+                                                     default:
+                                                         <span class="badge bg-secondary">Belirsiz</span>
+                                                         break;
+                                                 }
+                                             </td>
+                                            <td class="px-4 py-3" style="color: #6b7280;">
+                                                <div class="position-relative d-flex justify-content-center">
+                                                    <span class="d-flex align-items-center team-count-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Ekip: @proje.Ekip">
+                                                        <i class="fas fa-users text-primary me-2"></i>@proje.personel
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                 <div class="d-flex gap-2">
+                                                     <button type="button" class="btn btn-sm btn-info" 
+                                                             onclick="viewProject(@proje.ProjeID)">
+                                                         <i class="fas fa-eye me-1"></i>Detay
+                                                     </button>
+                                                     <button type="button" class="btn btn-sm btn-success" 
+                                                             onclick="printSingleProject(@proje.ProjeID)">
+                                                         <i class="fas fa-print me-1"></i>Yazdır
+                                                     </button>
+                                                     <button type="button" class="btn btn-sm btn-warning" 
+                                                             onclick="editProject(@proje.ProjeID)">
+                                                         <i class="fas fa-edit me-1"></i>Düzenle
+                                                     </button>
+                                                     <button type="button" class="btn btn-sm btn-danger" 
+                                                             onclick="deleteProject(@proje.ProjeID)">
+                                                         <i class="fas fa-trash me-1"></i>Sil
+                                                     </button>
+                                                 </div>
+                                             </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                                <i class="fas fa-folder-open" style="font-size: 2rem; color: #6c757d;"></i>
+                            </div>
+                            <h3 class="mt-4 fw-bold text-dark">Henüz proje bulunmamaktadır</h3>
+                            <p class="mt-2 text-muted">Başlamak için yeni bir proje ekleyin ve projelerinizi yönetmeye başlayın.</p>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                                    <i class="fas fa-plus me-2"></i>Yeni Proje Ekle
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Proje Ekleme Modal -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" style="max-height: 95vh; margin: 1rem auto;">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <form id="addProjectForm" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-primary text-white border-0 py-4">
+                    <h5 class="modal-title" id="addProjectModalLabel"><i class="fas fa-plus-circle me-2"></i>Yeni Proje Ekle</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-white p-6" style="max-height: calc(95vh - 160px); overflow-y: auto;">
+                    <div class="row">
+                        <!-- Sol Sütun - Temel Bilgiler -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Temel Bilgiler</h6>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.ProjeAd" class="form-label">Proje Adı</label>
+                                <input asp-for="AddProject.ProjeAd" class="form-control" placeholder="Proje adını giriniz" />
+                                <span asp-validation-for="AddProject.ProjeAd" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.Mudurluk" class="form-label">Müdürlük</label>
+                                <input asp-for="AddProject.Mudurluk" class="form-control" placeholder="Müdürlük adını giriniz" />
+                                <span asp-validation-for="AddProject.Mudurluk" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.Baskanlik" class="form-label">Başkanlık</label>
+                                <input asp-for="AddProject.Baskanlik" class="form-control" placeholder="Başkanlık adını giriniz" />
+                                <span asp-validation-for="AddProject.Baskanlik" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.BirimId" class="form-label">Birim</label>
+                                <select asp-for="AddProject.BirimId" class="form-select">
+                                    <option value="">Birim seçiniz</option>
+                                    @foreach (var birim in Model.Birimler)
+                                    {
+                                        <option value="@birim.id">@birim.BirimAd</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="AddProject.BirimId" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.Durum" class="form-label">Durum</label>
+                                <select asp-for="AddProject.Durum" class="form-select">
+                                    <option value="0">Durum seçiniz</option>
+                                    <option value="1">Onay Bekliyor</option>
+                                    <option value="2">Planlama</option>
+                                    <option value="3">Devam Ediyor</option>
+                                    <option value="4">Tamamlandı</option>
+                                    <option value="5">İptal Edildi</option>
+                                </select>
+                                <span asp-validation-for="AddProject.Durum" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.Amac" class="form-label">Amaç</label>
+                                <textarea asp-for="AddProject.Amac" class="form-control" rows="3" placeholder="Proje amacını giriniz"></textarea>
+                                <span asp-validation-for="AddProject.Amac" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.Kapsam" class="form-label">Kapsam</label>
+                                <textarea asp-for="AddProject.Kapsam" class="form-control" rows="3" placeholder="Proje kapsamını giriniz"></textarea>
+                                <span asp-validation-for="AddProject.Kapsam" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Sağ Sütun - Detay Bilgiler -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Detay Bilgiler</h6>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.bas" class="form-label">Başlangıç Tarihi</label>
+                                <input asp-for="AddProject.bas" type="date" class="form-control" />
+                                <span asp-validation-for="AddProject.bas" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.bit" class="form-label">Bitiş Tarihi</label>
+                                <input asp-for="AddProject.bit" type="date" class="form-control" />
+                                <span asp-validation-for="AddProject.bit" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.Maliyet" class="form-label">Maliyet</label>
+                                <input asp-for="AddProject.Maliyet" type="number" step="0.01" class="form-control" placeholder="Maliyet giriniz" />
+                                <span asp-validation-for="AddProject.Maliyet" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.personel" class="form-label">Personel Sayısı</label>
+                                <input asp-for="AddProject.personel" type="number" class="form-control" placeholder="Personel sayısını giriniz" />
+                                <span asp-validation-for="AddProject.personel" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.Ekip" class="form-label">Ekip</label>
+                                <input asp-for="AddProject.Ekip" class="form-control" placeholder="Ekip bilgisini giriniz" />
+                                <span asp-validation-for="AddProject.Ekip" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.sponsor" class="form-label">Sponsor</label>
+                                <input asp-for="AddProject.sponsor" class="form-control" placeholder="Sponsor bilgisini giriniz" />
+                                <span asp-validation-for="AddProject.sponsor" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="AddProject.olcut" class="form-label">Ölçüt</label>
+                                <input asp-for="AddProject.olcut" class="form-control" placeholder="Ölçüt bilgisini giriniz" />
+                                <span asp-validation-for="AddProject.olcut" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Proje Ekle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Proje Düzenleme Modal -->
+<div class="modal fade" id="editProjectModal" tabindex="-1" aria-labelledby="editProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" style="max-height: 95vh; margin: 1rem auto;">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <form id="editProjectForm" method="post" asp-page-handler="Edit">
+                @Html.AntiForgeryToken()
+                <input asp-for="EditProject.ProjeID" type="hidden" id="EditProject_ProjeID" />
+                <div class="modal-header bg-warning text-dark border-0 py-4">
+                    <h5 class="modal-title" id="editProjectModalLabel"><i class="fas fa-edit me-2"></i>Proje Düzenle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-white p-6" style="max-height: calc(95vh - 160px); overflow-y: auto;">
+                    <div class="row">
+                        <!-- Sol Sütun - Temel Bilgiler -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Temel Bilgiler</h6>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.ProjeAd" class="form-label">Proje Adı</label>
+                                <input asp-for="EditProject.ProjeAd" class="form-control" placeholder="Proje adını giriniz" id="EditProject_ProjeAd" />
+                                <span asp-validation-for="EditProject.ProjeAd" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.Mudurluk" class="form-label">Müdürlük</label>
+                                <input asp-for="EditProject.Mudurluk" class="form-control" placeholder="Müdürlük adını giriniz" id="EditProject_Mudurluk" />
+                                <span asp-validation-for="EditProject.Mudurluk" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.Baskanlik" class="form-label">Başkanlık</label>
+                                <input asp-for="EditProject.Baskanlik" class="form-control" placeholder="Başkanlık adını giriniz" id="EditProject_Baskanlik" />
+                                <span asp-validation-for="EditProject.Baskanlik" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.BirimId" class="form-label">Birim</label>
+                                <select asp-for="EditProject.BirimId" class="form-select" id="EditProject_BirimId">
+                                    <option value="">Birim seçiniz</option>
+                                    @foreach (var birim in Model.Birimler)
+                                    {
+                                        <option value="@birim.id">@birim.BirimAd</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="EditProject.BirimId" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.Durum" class="form-label">Durum</label>
+                                <select asp-for="EditProject.Durum" class="form-select" id="EditProject_Durum">
+                                    <option value="0">Durum seçiniz</option>
+                                    <option value="1">Onay Bekliyor</option>
+                                    <option value="2">Planlama</option>
+                                    <option value="3">Devam Ediyor</option>
+                                    <option value="4">Tamamlandı</option>
+                                    <option value="5">İptal Edildi</option>
+                                </select>
+                                <span asp-validation-for="EditProject.Durum" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.Amac" class="form-label">Amaç</label>
+                                <textarea asp-for="EditProject.Amac" class="form-control" rows="3" placeholder="Proje amacını giriniz" id="EditProject_Amac"></textarea>
+                                <span asp-validation-for="EditProject.Amac" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.Kapsam" class="form-label">Kapsam</label>
+                                <textarea asp-for="EditProject.Kapsam" class="form-control" rows="3" placeholder="Proje kapsamını giriniz" id="EditProject_Kapsam"></textarea>
+                                <span asp-validation-for="EditProject.Kapsam" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Sağ Sütun - Detay Bilgiler -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Detay Bilgiler</h6>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.bas" class="form-label">Başlangıç Tarihi</label>
+                                <input asp-for="EditProject.bas" type="date" class="form-control" id="EditProject_bas" />
+                                <span asp-validation-for="EditProject.bas" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.bit" class="form-label">Bitiş Tarihi</label>
+                                <input asp-for="EditProject.bit" type="date" class="form-control" id="EditProject_bit" />
+                                <span asp-validation-for="EditProject.bit" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.Maliyet" class="form-label">Maliyet</label>
+                                <input asp-for="EditProject.Maliyet" type="number" step="0.01" class="form-control" placeholder="Maliyet giriniz" id="EditProject_Maliyet" />
+                                <span asp-validation-for="EditProject.Maliyet" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.personel" class="form-label">Personel Sayısı</label>
+                                <input asp-for="EditProject.personel" type="number" class="form-control" placeholder="Personel sayısını giriniz" id="EditProject_personel" />
+                                <span asp-validation-for="EditProject.personel" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.Ekip" class="form-label">Ekip</label>
+                                <select id="EditProject_EkipSelect" class="form-select">
+                                    <option value="">Kullanıcı seçiniz</option>
+                                    @if (Model.Kullanicilar != null)
+                                    {
+                                        @foreach (var kullanici in Model.Kullanicilar)
+                                        {
+                                            <option value="@kullanici.id">@kullanici.AdSoyad - @kullanici.id</option>
+                                        }
+                                    }
+                                </select>
+                                <input asp-for="EditProject.Ekip" type="hidden" id="EditProject_Ekip" />
+                                <div id="selectedUsersContainer" class="mt-2" style="display: flex; flex-wrap: wrap; gap: 0.25rem;"></div>
+                                <span asp-validation-for="EditProject.Ekip" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.sponsor" class="form-label">Sponsor</label>
+                                <input asp-for="EditProject.sponsor" class="form-control" placeholder="Sponsor bilgisini giriniz" id="EditProject_sponsor" />
+                                <span asp-validation-for="EditProject.sponsor" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="EditProject.olcut" class="form-label">Ölçüt</label>
+                                <input asp-for="EditProject.olcut" class="form-control" placeholder="Ölçüt bilgisini giriniz" id="EditProject_olcut" />
+                                <span asp-validation-for="EditProject.olcut" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-warning">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modal -->
+<div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <form id="deleteProjectForm" method="post" asp-page-handler="Delete">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="deleteProjectId" name="id" />
+                <div class="modal-header bg-danger text-white border-0 py-4">
+                    <h5 class="modal-title" id="deleteProjectModalLabel"><i class="fas fa-trash me-2"></i>Proje Sil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-white p-6">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Dikkat!</strong> Bu işlem geri alınamaz.
+                    </div>
+                    <p>Aşağıdaki projeyi silmek istediğinizden emin misiniz?</p>
+                    <p><strong id="deleteProjectName"></strong></p>
+                </div>
+                <div class="modal-footer bg-light border-0 py-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger">Sil</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Proje Detay Modal -->
+<div class="modal fade" id="viewProjectModal" tabindex="-1" aria-labelledby="viewProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="max-height: 95vh; margin: 1rem auto;">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-info text-white border-0 py-4">
+                <h5 class="modal-title" id="viewProjectModalLabel"><i class="fas fa-eye me-2"></i>Proje Detayları</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-white p-0" style="max-height: calc(95vh - 160px); overflow-y: auto;">
+                <!-- Tab Navigation -->
+                <div style="background: #f8f9fa; padding: 5px 20px 0 20px; border-bottom: 1px solid #dee2e6;">
+                    <ul class="nav nav-tabs border-0" id="projectDetailTabs" role="tablist" style="background: transparent; border: none;">
+                        <li class="nav-item" role="presentation" style="margin-right: 8px;">
+                            <button class="nav-link active fw-bold py-3 px-4" id="project-info-tab" type="button" role="tab" aria-controls="project-info" aria-selected="true" style="background: #ffffff; color: #495057; border: 1px solid #dee2e6; border-bottom: none; border-radius: 8px 8px 0 0; transition: all 0.3s ease; position: relative; z-index: 2; margin-bottom: -1px;">
+                                <i class="fas fa-info-circle me-2"></i>Proje Bilgileri
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation" style="margin-right: 8px;">
+                            <button class="nav-link fw-bold py-3 px-4" id="project-progress-tab" type="button" role="tab" aria-controls="project-progress" aria-selected="false" style="background: #e9ecef; color: #6c757d; border: 1px solid #dee2e6; border-bottom: none; border-radius: 8px 8px 0 0; transition: all 0.3s ease; position: relative; z-index: 1; margin-bottom: -1px;">
+                                <i class="fas fa-chart-line me-2"></i>İlerleme
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation" style="margin-right: 8px;">
+                            <button class="nav-link fw-bold py-3 px-4" id="project-timeline-tab" type="button" role="tab" aria-controls="project-timeline" aria-selected="false" style="background: #e9ecef; color: #6c757d; border: 1px solid #dee2e6; border-bottom: none; border-radius: 8px 8px 0 0; transition: all 0.3s ease; position: relative; z-index: 1; margin-bottom: -1px;">
+                                <i class="fas fa-clock me-2"></i>Timeline
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="projectDetailTabContent" style="background-color: #f8f9fa; border-radius: 0 0 8px 8px;">
+                    <!-- Proje Bilgileri Tab -->
+                    <div class="tab-pane fade show active" id="project-info" role="tabpanel" aria-labelledby="project-info-tab">
+                        <div class="px-4 py-6 pt-4">
+                            <div class="row">
+                                <!-- Sol Sütun - Temel Bilgiler -->
+                                <div class="col-md-6">
+                                    <h6 class="text-muted mb-3">Temel Bilgiler</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Proje Adı</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_ProjeAd"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Müdürlük</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_Mudurluk"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Başkanlık</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_Baskanlik"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Durum</label>
+                                        <div class="mt-2">
+                                            <span class="badge fs-6 px-3 py-2" id="ViewProject_Durum"></span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Amaç</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_Amac" style="min-height: 80px;"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Kapsam</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_Kapsam" style="min-height: 80px;"></p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Sağ Sütun - Detay Bilgiler -->
+                                <div class="col-md-6">
+                                    <h6 class="text-muted mb-3">Detay Bilgiler</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Başlangıç Tarihi</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_bas"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Bitiş Tarihi</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_bit"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Maliyet</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_Maliyet"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Personel Sayısı</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_personel"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Ekip</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_Ekip"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Sponsor</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_sponsor"></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Ölçüt</label>
+                                        <p class="form-control-plaintext border rounded p-2 bg-light" id="ViewProject_olcut"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- İlerleme Tab -->
+                    <div class="tab-pane fade" id="project-progress" role="tabpanel" aria-labelledby="project-progress-tab">
+                        <div class="px-4 py-6 pt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="text-muted mb-0">Proje İlerlemeleri</h6>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addProgressForProject()">
+                                    <i class="fas fa-plus me-1"></i>Yeni İlerleme
+                                </button>
+                            </div>
+                            
+                            <!-- İlerleme Listesi -->
+                            <div id="projectProgressList">
+                                <div class="text-center py-5">
+                                    <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                                        <i class="fas fa-chart-line" style="font-size: 1.5rem; color: #6c757d;"></i>
+                                    </div>
+                                    <h6 class="mt-3 fw-bold text-dark">İlerleme verisi yükleniyor...</h6>
+                                    <p class="mt-2 text-muted">Bu proje için ilerleme bilgileri getiriliyor.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline Tab -->
+                    <div class="tab-pane fade" id="project-timeline" role="tabpanel" aria-labelledby="project-timeline-tab">
+                        <div class="px-4 py-6 pt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="text-muted mb-0">Proje Timeline</h6>
+                                <div class="d-flex gap-2">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="timelineSortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-sort me-1"></i>Sıralama
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="timelineSortDropdown">
+                                            <li><a class="dropdown-item" href="#" onclick="sortTimeline('date-desc')"><i class="fas fa-arrow-down me-2"></i>Tarih (Yeni → Eski)</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="sortTimeline('date-asc')"><i class="fas fa-arrow-up me-2"></i>Tarih (Eski → Yeni)</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#" onclick="sortTimeline('progress-desc')"><i class="fas fa-arrow-down me-2"></i>İlerleme (Yüksek → Düşük)</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="sortTimeline('progress-asc')"><i class="fas fa-arrow-up me-2"></i>İlerleme (Düşük → Yüksek)</a></li>
+                                        </ul>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadProjectTimeline(currentProjectId)" title="Yenile">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Timeline Container -->
+                            <div id="projectTimelineContainer">
+                                <div class="timeline-loading">
+                                    <div class="timeline-loading-spinner"></div>
+                                    <div class="timeline-loading-text">Timeline yükleniyor...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0 py-4">
+                <button type="button" class="btn btn-warning" onclick="editProjectFromDetails()"><i class="fas fa-edit me-2"></i>Düzenle</button>
+                <button type="button" class="btn btn-primary" onclick="printProjectDetails()"><i class="fas fa-print me-2"></i>Yazdır</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit İlerleme Modal -->
+<div class="modal fade" id="editIleremeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-2xl rounded-xl overflow-hidden">
+            <div class="modal-header bg-warning text-white border-0 py-4">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>İlerleme Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/Progress/Index?handler=UpdateIlereme">
+                <div class="modal-body bg-white p-4">
+                    <input type="hidden" id="EditIlerleme_id" name="id" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Proje</label>
+                                <select id="EditIlerleme_projeId" name="projeId" class="form-select" onchange="loadGanttStages(this.value, 'EditIlerleme_ganttId')" required>
+                                    <option value="">Proje seçiniz</option>
+                                    @if (Model.ProjeListe != null)
+                                    {
+                                        @foreach (var proje in Model.ProjeListe)
+                                        {
+                                            <option value="@proje.ProjeID">@proje.ProjeAd</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Gantt Aşaması</label>
+                                <select id="EditIlerleme_ganttId" name="ganttId" class="form-select" required>
+                                    <option value="">Gantt aşaması seçiniz</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">İlerleme Tanımı</label>
+                                <input type="text" id="EditIlerleme_ilerlemeTanimi" name="ilerlemeTanimi" class="form-control" placeholder="İlerleme tanımını giriniz" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tamamlanma Yüzdesi</label>
+                                <input type="number" id="EditIlerleme_tamamlanmaYuzdesi" name="tamamlanmaYuzdesi" class="form-control" placeholder="0-100" min="0" max="100" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama</label>
+                        <textarea id="EditIlerleme_aciklama" name="aciklama" class="form-control" rows="3" placeholder="Açıklama giriniz"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light p-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-warning">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sayfa yüklendiğinde çalışacak kodlar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toast mesajları göster
+            @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+            {
+                <text>
+                showToast('@TempData["SuccessMessage"]', 'success');
+                </text>
+            }
+            
+            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+            {
+                <text>
+                showToast('@TempData["ErrorMessage"]', 'error');
+                </text>
+            }
+            
+            // Modal kapandığında formları temizle
+            document.getElementById('addProjectModal').addEventListener('hidden.bs.modal', function() {
+                clearForm('addProjectModal');
+            });
+            
+            document.getElementById('editProjectModal').addEventListener('hidden.bs.modal', function() {
+                clearForm('editProjectModal');
+            });
+            
+            // AJAX form submissions
+            setupAjaxForms();
+        });
+        
+        // AJAX form setup
+        function setupAjaxForms() {
+            // Add Project Form
+            document.getElementById('addProjectForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitFormAjax(this, function(success, message) {
+                    // Toast'ı hemen göster
+                    showToast(message, success ? 'success' : 'error');
+                    
+                    if (success) {
+                        bootstrap.Modal.getInstance(document.getElementById('addProjectModal')).hide();
+                        clearForm('addProjectModal');
+                        setTimeout(() => {
+                            location.reload(); // Tabloyu yenile
+                        }, 300);
+                    }
+                });
+            });
+            
+            // Edit Project Form
+            document.getElementById('editProjectForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitFormAjax(this, function(success, message) {
+                    // Toast'ı hemen göster
+                    showToast(message, success ? 'success' : 'error');
+                    
+                    if (success) {
+                        bootstrap.Modal.getInstance(document.getElementById('editProjectModal')).hide();
+                        clearForm('editProjectModal');
+                        
+                        // Eğer currentProjectId varsa (proje detaylarından gelindiyse), proje detaylarını tekrar aç
+                        if (currentProjectId) {
+                            setTimeout(() => {
+                                viewProject(currentProjectId);
+                            }, 300);
+                        } else {
+                            setTimeout(() => {
+                                location.reload(); // Tabloyu yenile
+                            }, 300);
+                        }
+                    }
+                });
+            });
+            
+            // Delete Project Form
+            document.getElementById('deleteProjectForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitFormAjax(this, function(success, message) {
+                    // Toast'ı hemen göster
+                    showToast(message, success ? 'success' : 'error');
+                    
+                    if (success) {
+                        bootstrap.Modal.getInstance(document.getElementById('deleteProjectModal')).hide();
+                        setTimeout(() => {
+                            location.reload(); // Tabloyu yenile
+                        }, 300);
+                    }
+                });
+            });
+        }
+        
+        // AJAX form submission helper
+         function submitFormAjax(form, callback) {
+             var formData = new FormData(form);
+             
+             fetch(form.action || window.location.pathname, {
+                 method: 'POST',
+                 body: formData,
+                 headers: {
+                     'X-Requested-With': 'XMLHttpRequest'
+                 }
+             })
+             .then(response => {
+                 // Check if response is JSON
+                 const contentType = response.headers.get('content-type');
+                 if (contentType && contentType.includes('application/json')) {
+                     return response.json();
+                 } else {
+                     // Non-JSON response - check HTTP status
+                     if (response.ok) {
+                         return response.text().then(text => ({ success: true, message: 'İşlem başarıyla tamamlandı.' }));
+                     } else {
+                         return response.text().then(text => ({ success: false, message: 'Bir hata oluştu. Lütfen tekrar deneyin.' }));
+                     }
+                 }
+             })
+             .then(data => {
+                 if (data.success !== undefined) {
+                     callback(data.success, data.message);
+                 } else {
+                     // Fallback
+                     callback(true, 'İşlem başarıyla tamamlandı.');
+                 }
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                 callback(false, 'Bir hata oluştu. Lütfen tekrar deneyin.');
+             });
+         }
+        
+        // Proje detay görüntüleme fonksiyonu
+        function viewProject(projeID) {
+            // AJAX ile proje verilerini getir
+            fetch(`?handler=ProjectData&projectId=${projeID}`, {
+                method: 'GET',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('AJAX Response:', result);
+                if (result.success) {
+                    const data = result.data;
+                    
+                    // Detay modalındaki p elementlerine textContent ile değer ata
+                    document.getElementById('ViewProject_ProjeAd').textContent = data.projeAd || '-';
+                    document.getElementById('ViewProject_Mudurluk').textContent = data.mudurluk || '-';
+                    document.getElementById('ViewProject_Baskanlik').textContent = data.baskanlik || '-';
+                    document.getElementById('ViewProject_Amac').textContent = data.amac || '-';
+                    document.getElementById('ViewProject_Kapsam').textContent = data.kapsam || '-';
+                    document.getElementById('ViewProject_Maliyet').textContent = data.maliyet ? data.maliyet + ' TL' : '-';
+                    document.getElementById('ViewProject_Ekip').textContent = data.ekip || '-';
+                    document.getElementById('ViewProject_bas').textContent = data.bas || '-';
+                    document.getElementById('ViewProject_bit').textContent = data.bit || '-';
+                    document.getElementById('ViewProject_olcut').textContent = data.olcut || '-';
+                    document.getElementById('ViewProject_sponsor').textContent = data.sponsor || '-';
+                    document.getElementById('ViewProject_personel').textContent = data.personel || '-';
+                    
+                    // Durum değerini badge olarak göster
+                    var durumElement = document.getElementById('ViewProject_Durum');
+                    var durumText = '';
+                    var durumClass = 'badge fs-6 px-3 py-2';
+                    
+                    switch(parseInt(data.durum)) {
+                        case 1:
+                            durumText = 'Onay Bekliyor';
+                            durumClass += ' bg-warning text-dark';
+                            break;
+                        case 2:
+                            durumText = 'Planlama';
+                            durumClass += ' bg-info text-dark';
+                            break;
+                        case 3:
+                            durumText = 'Devam Ediyor';
+                            durumClass += ' bg-primary text-white';
+                            break;
+                        case 4:
+                            durumText = 'Tamamlandı';
+                            durumClass += ' bg-success text-white';
+                            break;
+                        case 5:
+                            durumText = 'İptal Edildi';
+                            durumClass += ' bg-danger text-white';
+                            break;
+                        default:
+                            durumText = 'Belirsiz';
+                            durumClass += ' bg-secondary text-white';
+                            break;
+                    }
+                    
+                    durumElement.className = durumClass;
+                    durumElement.textContent = durumText;
+                    
+                    // Badge genişliğini text içeriğine göre ayarla
+                    durumElement.style.width = 'auto';
+                    durumElement.style.minWidth = 'fit-content';
+                    durumElement.style.maxWidth = '100%';
+                    durumElement.style.whiteSpace = 'nowrap';
+                    durumElement.style.display = 'inline-block';
+                    
+                    // Proje ID'sini global değişkene ata
+                    currentProjectId = projeID;
+                    
+                    // İlk tab'ı aktif yap
+                    const projectInfoTab = document.getElementById('project-info-tab');
+                    const progressTab = document.getElementById('project-progress-tab');
+                    const timelineTab = document.getElementById('project-timeline-tab');
+                    const projectInfoContent = document.getElementById('project-info');
+                    const progressContent = document.getElementById('project-progress');
+                    const timelineContent = document.getElementById('project-timeline');
+                    
+                    if (projectInfoTab && progressTab && timelineTab && projectInfoContent && progressContent && timelineContent) {
+                        // Tab stillerini güncelle
+                        updateTabStyles(projectInfoTab, true);
+                        updateTabStyles(progressTab, false);
+                        updateTabStyles(timelineTab, false);
+                        
+                        // Tab sınıflarını ve aria-selected özelliklerini ayarla
+                        projectInfoTab.classList.add('active');
+                        projectInfoTab.setAttribute('aria-selected', 'true');
+                        progressTab.classList.remove('active');
+                        progressTab.setAttribute('aria-selected', 'false');
+                        timelineTab.classList.remove('active');
+                        timelineTab.setAttribute('aria-selected', 'false');
+                        
+                        // Content'leri ayarla
+                        projectInfoContent.classList.add('show', 'active');
+                        progressContent.classList.remove('show', 'active');
+                        timelineContent.classList.remove('show', 'active');
+                        
+                        // Önceki event listener'ları temizle
+                        progressTab.removeEventListener('click', progressTabClickHandler);
+                        projectInfoTab.removeEventListener('click', projectInfoTabClickHandler);
+                        timelineTab.removeEventListener('click', timelineTabClickHandler);
+                        
+                        // Yeni event listener'lar ekle
+                        progressTab.addEventListener('click', progressTabClickHandler);
+                        projectInfoTab.addEventListener('click', projectInfoTabClickHandler);
+                        timelineTab.addEventListener('click', timelineTabClickHandler);
+                    }
+                    
+                    var viewModal = new bootstrap.Modal(document.getElementById('viewProjectModal'));
+                    viewModal.show();
+                } else {
+                    showToast(result.message || 'Proje verileri alınamadı.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Proje verileri alınırken bir hata oluştu.', 'error');
+            });
+        }
+        
+        // Tab stillerini güncelleme fonksiyonu
+        function updateTabStyles(tab, isActive) {
+            if (isActive) {
+                tab.style.background = '#ffffff';
+                tab.style.color = '#495057';
+                tab.style.border = '1px solid #dee2e6';
+                tab.style.borderBottom = 'none';
+                tab.style.borderRadius = '8px 8px 0 0';
+                tab.style.zIndex = '2';
+                tab.style.marginBottom = '-1px';
+            } else {
+                tab.style.background = '#e9ecef';
+                tab.style.color = '#6c757d';
+                tab.style.border = '1px solid #dee2e6';
+                tab.style.borderBottom = 'none';
+                tab.style.borderRadius = '8px 8px 0 0';
+                tab.style.zIndex = '1';
+                tab.style.marginBottom = '-1px';
+            }
+        }
+        
+        // Progress tab click handler
+        function progressTabClickHandler(event) {
+            event.preventDefault();
+            const progressTab = document.getElementById('project-progress-tab');
+            const projectInfoTab = document.getElementById('project-info-tab');
+            const timelineTab = document.getElementById('project-timeline-tab');
+            const progressContent = document.getElementById('project-progress');
+            const infoContent = document.getElementById('project-info');
+            const timelineContent = document.getElementById('project-timeline');
+            
+            if (progressTab && currentProjectId) {
+                // Bootstrap tab sınıflarını güncelle
+                progressTab.classList.add('active');
+                progressTab.setAttribute('aria-selected', 'true');
+                projectInfoTab.classList.remove('active');
+                projectInfoTab.setAttribute('aria-selected', 'false');
+                timelineTab.classList.remove('active');
+                timelineTab.setAttribute('aria-selected', 'false');
+                
+                // Content'leri güncelle
+                progressContent.classList.add('show', 'active');
+                infoContent.classList.remove('show', 'active');
+                timelineContent.classList.remove('show', 'active');
+                
+                // Tab stillerini güncelle
+                updateTabStyles(progressTab, true);
+                updateTabStyles(projectInfoTab, false);
+                updateTabStyles(timelineTab, false);
+                
+                console.log('Loading progress for project:', currentProjectId);
+                loadProjectProgress(currentProjectId);
+            }
+        }
+        
+        // Project info tab click handler
+        function projectInfoTabClickHandler(event) {
+            event.preventDefault();
+            const progressTab = document.getElementById('project-progress-tab');
+            const timelineTab = document.getElementById('project-timeline-tab');
+            const projectInfoTab = document.getElementById('project-info-tab');
+            const progressContent = document.getElementById('project-progress');
+            const timelineContent = document.getElementById('project-timeline');
+            const infoContent = document.getElementById('project-info');
+            
+            if (projectInfoTab) {
+                // Bootstrap tab sınıflarını güncelle
+                projectInfoTab.classList.add('active');
+                projectInfoTab.setAttribute('aria-selected', 'true');
+                progressTab.classList.remove('active');
+                progressTab.setAttribute('aria-selected', 'false');
+                timelineTab.classList.remove('active');
+                timelineTab.setAttribute('aria-selected', 'false');
+                
+                // Content'leri güncelle
+                infoContent.classList.add('show', 'active');
+                progressContent.classList.remove('show', 'active');
+                timelineContent.classList.remove('show', 'active');
+                
+                // Tab stillerini güncelle
+                updateTabStyles(projectInfoTab, true);
+                updateTabStyles(progressTab, false);
+                updateTabStyles(timelineTab, false);
+                
+                console.log('Switched to project info tab');
+            }
+        }
+        
+        // Timeline tab click handler
+        function timelineTabClickHandler(event) {
+            event.preventDefault();
+            const progressTab = document.getElementById('project-progress-tab');
+            const timelineTab = document.getElementById('project-timeline-tab');
+            const projectInfoTab = document.getElementById('project-info-tab');
+            const progressContent = document.getElementById('project-progress');
+            const timelineContent = document.getElementById('project-timeline');
+            const infoContent = document.getElementById('project-info');
+            
+            if (timelineTab && currentProjectId) {
+                // Bootstrap tab sınıflarını güncelle
+                timelineTab.classList.add('active');
+                timelineTab.setAttribute('aria-selected', 'true');
+                projectInfoTab.classList.remove('active');
+                projectInfoTab.setAttribute('aria-selected', 'false');
+                progressTab.classList.remove('active');
+                progressTab.setAttribute('aria-selected', 'false');
+                
+                // Content'leri güncelle
+                timelineContent.classList.add('show', 'active');
+                infoContent.classList.remove('show', 'active');
+                progressContent.classList.remove('show', 'active');
+                
+                // Tab stillerini güncelle
+                updateTabStyles(timelineTab, true);
+                updateTabStyles(projectInfoTab, false);
+                updateTabStyles(progressTab, false);
+                
+                console.log('Loading timeline for project:', currentProjectId);
+                loadProjectTimeline(currentProjectId);
+            }
+        }
+        
+        // Proje düzenleme fonksiyonu
+        function editProject(projeID) {
+            // AJAX ile proje verilerini getir
+            fetch(`?handler=ProjectData&projectId=${projeID}`, {
+                method: 'GET',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const data = result.data;
+                    
+                    // Form elemanlarını doldur
+                    document.getElementById('EditProject_ProjeID').value = data.projeID;
+                    document.getElementById('EditProject_ProjeAd').value = data.projeAd || '';
+                    document.getElementById('EditProject_Mudurluk').value = data.mudurluk || '';
+                    document.getElementById('EditProject_Baskanlik').value = data.baskanlik || '';
+                    
+                    // Select2 elementleri için özel işlem
+                    $('#EditProject_BirimId').val(data.birimId || '').trigger('change');
+                    $('#EditProject_Durum').val(data.durum || 0).trigger('change');
+                    
+                    document.getElementById('EditProject_Amac').value = data.amac || '';
+                    document.getElementById('EditProject_Kapsam').value = data.kapsam || '';
+                    document.getElementById('EditProject_Maliyet').value = data.maliyet || '';
+                    document.getElementById('EditProject_Ekip').value = data.ekip || '';
+                    document.getElementById('EditProject_bas').value = data.bas || '';
+                    document.getElementById('EditProject_bit').value = data.bit || '';
+                    document.getElementById('EditProject_olcut').value = data.olcut || '';
+                    document.getElementById('EditProject_sponsor').value = data.sponsor || '';
+                    document.getElementById('EditProject_personel').value = data.personel || '';
+                    
+                    // Ekip verilerini yükle
+                    loadExistingTeamData(data.ekip || '');
+                    
+                    // Modal'ı aç
+                    var editModal = new bootstrap.Modal(document.getElementById('editProjectModal'));
+                    editModal.show();
+                } else {
+                    showToast(result.message || 'Proje verileri alınamadı.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Proje verileri alınırken bir hata oluştu.', 'error');
+            });
+        }
+        
+        // Proje detaylarından düzenleme fonksiyonu
+        function editProjectFromDetails() {
+            if (currentProjectId) {
+                // Proje detayları modalını kapat
+                var detailModal = bootstrap.Modal.getInstance(document.getElementById('projectDetailModal'));
+                if (detailModal) {
+                    detailModal.hide();
+                }
+                
+                // Kısa bir gecikme ile edit modal'ını aç
+                setTimeout(() => {
+                    editProject(currentProjectId);
+                }, 300);
+            } else {
+                showToast('Proje ID bulunamadı.', 'error');
+            }
+        }
+        
+        // Proje silme fonksiyonu
+        function deleteProject(projeID) {
+            // AJAX ile proje verilerini getir
+            fetch(`?handler=ProjectData&projectId=${projeID}`, {
+                method: 'GET',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const data = result.data;
+                    
+                    document.getElementById('deleteProjectId').value = projeID;
+                    document.getElementById('deleteProjectName').textContent = data.projeAd || 'Bilinmeyen Proje';
+                    
+                    var deleteModal = new bootstrap.Modal(document.getElementById('deleteProjectModal'));
+                    deleteModal.show();
+                } else {
+                    showToast(result.message || 'Proje verileri alınamadı.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Proje verileri alınırken bir hata oluştu.', 'error');
+            });
+        }
+        
+        // Form temizleme fonksiyonu
+        function clearForm(modalId) {
+            var modal = document.getElementById(modalId);
+            var inputs = modal.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="hidden"], textarea');
+            
+            inputs.forEach(function(input) {
+                if (input.type !== 'hidden' || input.name.includes('ID')) {
+                    input.value = '';
+                }
+            });
+            
+            // Select2 elementlerini temizle
+            $(modal).find('select').each(function() {
+                $(this).val('').trigger('change');
+            });
+            
+            // Validation mesajlarını temizle
+            var validationSpans = modal.querySelectorAll('.text-danger');
+            validationSpans.forEach(function(span) {
+                span.textContent = '';
+            });
+        }
+        
+        // Toast container oluştur
+        function createToastContainer() {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                container.style.zIndex = '1055';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast mesaj gösterme fonksiyonu
+        function showToast(message, type) {
+            var container = createToastContainer();
+            
+            // Aynı mesajın zaten gösterilip gösterilmediğini kontrol et
+            var existingToasts = container.querySelectorAll('.toast');
+            for (var i = 0; i < existingToasts.length; i++) {
+                var existingMessage = existingToasts[i].querySelector('.toast-body').textContent.trim();
+                if (existingMessage === message) {
+                    return; // Aynı mesaj zaten gösteriliyor, yeni toast ekleme
+                }
+            }
+            
+            // Maksimum 3 toast'a izin ver, fazlasını kaldır
+            if (existingToasts.length >= 3) {
+                var oldestToast = existingToasts[0];
+                if (oldestToast.parentNode) {
+                    oldestToast.parentNode.removeChild(oldestToast);
+                }
+            }
+            
+            var toastClass = type === 'success' ? 'bg-success' : 'bg-danger';
+            var toastHtml = `
+                <div class="toast align-items-center text-white ${toastClass} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', toastHtml);
+            
+            // Toast'ı göster
+            var toastElement = container.lastElementChild;
+            var toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 3000
+            });
+            
+            toast.show();
+            
+            // Toast kapandığında DOM'dan kaldır
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                if (toastElement.parentNode) {
+                    toastElement.parentNode.removeChild(toastElement);
+                }
+            });
+        }
+        
+        // Tek proje için tüm raporları yazdırma fonksiyonu
+        function printSingleProject(projeID) {
+            // AJAX ile proje verilerini getir
+            fetch(`?handler=ProjectData&projectId=${projeID}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const data = result.data;
+                    
+                    var printWindow = window.open('', '_blank');
+                    
+                    // Durum değerini metne çevir
+                    var durumText = '';
+                    switch(parseInt(data.durum)) {
+                        case 1: durumText = 'Onay Bekliyor'; break;
+                        case 2: durumText = 'Planlama'; break;
+                        case 3: durumText = 'Devam Ediyor'; break;
+                        case 4: durumText = 'Tamamlandı'; break;
+                        case 5: durumText = 'İptal Edildi'; break;
+                        default: durumText = 'Belirsiz'; break;
+                    }
+                    
+                    // Tarihleri formatla
+                    var basFormatted = data.bas ? new Date(data.bas).toLocaleDateString('tr-TR') : '-';
+                    var bitFormatted = data.bit ? new Date(data.bit).toLocaleDateString('tr-TR') : '-';
+                    var maliyetFormatted = data.maliyet && data.maliyet !== 'null' ? data.maliyet + ' TL' : '-';
+                    
+                    // data nesnesine durumText'i ekle
+                    data.durumText = durumText;
+                    data.basFormatted = basFormatted;
+                    data.bitFormatted = bitFormatted;
+                    data.maliyetFormatted = maliyetFormatted;
+                    
+                    // Sadece bu projeye ait bilgileri kullan
+                    var currentProject = {
+                        ProjeAd: data.projeAd,
+                        Mudurluk: data.mudurluk,
+                        Baskanlik: data.baskanlik,
+                        Durum: durumText,
+                        BaslangicTarihi: basFormatted,
+                        BitisTarihi: bitFormatted,
+                        Maliyet: maliyetFormatted,
+                        Personel: data.personel,
+                        Ekip: data.ekip || '-',
+                        Sponsor: data.sponsor || '-',
+                        Olcut: data.olcut || '-'
+                    };
+             
+             var printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Kapsamlı Proje Raporu - ${data.projeAd}</title>
+                    <meta charset="utf-8">
+                    <style>
+                        body { 
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                            margin: 0; 
+                            padding: 15px;
+                            background-color: #f8f9fa;
+                            font-size: 14px;
+                        }
+                        .container {
+                            max-width: 100%;
+                            margin: 0 auto;
+                            background-color: white;
+                            padding: 25px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 25px; 
+                            border-bottom: 3px solid #007bff;
+                            padding-bottom: 15px;
+                        }
+                        .main-title { 
+                            font-size: 24px; 
+                            font-weight: bold; 
+                            color: #333; 
+                            margin-bottom: 8px;
+                            letter-spacing: 0.8px;
+                        }
+                        .project-name { 
+                            font-size: 18px; 
+                            color: #007bff; 
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        }
+                        .print-date {
+                            font-size: 12px;
+                            color: #6c757d;
+                            margin-top: 8px;
+                        }
+                        .section { 
+                            margin-bottom: 20px; 
+                            border: 1px solid #e9ecef;
+                            border-radius: 6px;
+                            overflow: hidden;
+                            page-break-inside: avoid;
+                        }
+                        .section-title { 
+                            font-size: 16px; 
+                            font-weight: bold; 
+                            color: white; 
+                            background: linear-gradient(135deg, #007bff, #0056b3);
+                            padding: 12px 16px;
+                            margin: 0;
+                        }
+                        .section-content {
+                            padding: 16px;
+                            background-color: #fff;
+                        }
+                        .info-row { 
+                            display: flex; 
+                            margin-bottom: 12px;
+                            align-items: flex-start;
+                            border-bottom: 1px solid #f1f3f4;
+                            padding-bottom: 8px;
+                        }
+                        .info-row:last-child {
+                            border-bottom: none;
+                            margin-bottom: 0;
+                        }
+                        .info-label { 
+                            font-weight: 600; 
+                            width: 160px; 
+                            color: #495057;
+                            flex-shrink: 0;
+                            font-size: 13px;
+                        }
+                        .info-value { 
+                            flex: 1;
+                            color: #212529;
+                            line-height: 1.4;
+                            font-size: 13px;
+                        }
+                        .status-badge { 
+                            padding: 5px 10px; 
+                            border-radius: 15px; 
+                            font-size: 11px; 
+                            font-weight: bold;
+                            display: inline-block;
+                        }
+                        .stats-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                            gap: 8px;
+                            margin-top: 8px;
+                        }
+                        .stat-item {
+                            background: #f8f9fa;
+                            padding: 8px;
+                            border-radius: 4px;
+                            text-align: center;
+                            border: 1px solid #e9ecef;
+                        }
+                        .stat-value {
+                            font-size: 16px;
+                            font-weight: bold;
+                            color: #007bff;
+                            margin-bottom: 3px;
+                        }
+                        .stat-label {
+                            font-size: 9px;
+                            color: #6c757d;
+                            text-transform: uppercase;
+                            letter-spacing: 0.3px;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            padding-top: 15px;
+                            border-top: 2px solid #e9ecef;
+                            color: #6c757d;
+                            font-size: 11px;
+                        }
+                        /* Tooltip stilleri */
+                        .team-count-badge {
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+                        
+                        .team-count-badge:hover {
+                            transform: scale(1.05);
+                        }
+                        
+                        /* Bootstrap tooltip özelleştirme */
+                        .tooltip.team-tooltip .tooltip-inner {
+                            background-color: #000 !important;
+                            color: #fff !important;
+                            border-radius: 6px;
+                            padding: 8px 12px;
+                            font-size: 12px;
+                            max-width: 250px;
+                            text-align: left;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        }
+                        
+                        .tooltip.team-tooltip .tooltip-arrow::before {
+                            border-top-color: #000 !important;
+                        }
+                        
+                        .tooltip.team-tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+                            border-bottom-color: #000 !important;
+                        }
+                        
+                        .tooltip.team-tooltip.bs-tooltip-start .tooltip-arrow::before {
+                            border-left-color: #000 !important;
+                        }
+                        
+                        .tooltip.team-tooltip.bs-tooltip-end .tooltip-arrow::before {
+                            border-right-color: #000 !important;
+                        }
+
+                        @@media print { 
+                            body { 
+                                margin: 0; 
+                                padding: 10px;
+                                background-color: white;
+                                font-size: 12px;
+                            }
+                            .container {
+                                box-shadow: none;
+                                border: none;
+                                padding: 15px;
+                                max-width: 100%;
+                            }
+                            .section {
+                                page-break-inside: avoid;
+                                margin-bottom: 12px;
+                            }
+                            .header {
+                                margin-bottom: 15px;
+                                padding-bottom: 10px;
+                            }
+                            .section-content {
+                                padding: 12px;
+                            }
+                            .footer {
+                                margin-top: 15px;
+                                padding-top: 10px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="main-title">KAPSAMLI PROJE RAPORU</div>
+                            <div class="project-name">${data.projeAd}</div>
+                            <div class="print-date">Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title">1. Proje Temel Bilgileri</div>
+                            <div class="section-content">
+                                <div class="info-row">
+                                    <div class="info-label">Proje Adı:</div>
+                                    <div class="info-value">${data.projeAd}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Müdürlük:</div>
+                                    <div class="info-value">${data.mudurluk}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Başkanlık/Departman:</div>
+                                    <div class="info-value">${data.baskanlik}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Durum:</div>
+                                    <div class="info-value">
+                                        <span class="status-badge" style="background-color: #007bff; color: white;">${data.durumText}</span>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Başlangıç Tarihi:</div>
+                                    <div class="info-value">${data.basFormatted}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Bitiş Tarihi:</div>
+                                    <div class="info-value">${data.bitFormatted}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Maliyet:</div>
+                                    <div class="info-value">${data.maliyetFormatted}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Personel Sayısı:</div>
+                                    <div class="info-value">${data.personel || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Ekip:</div>
+                                    <div class="info-value">${data.ekip || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Sponsor:</div>
+                                    <div class="info-value">${data.sponsor || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Ölçüt:</div>
+                                    <div class="info-value">${data.olcut || '-'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title">2. Proje Amaç ve Kapsamı</div>
+                            <div class="section-content">
+                                <div class="info-row">
+                                    <div class="info-label">Amaç:</div>
+                                    <div class="info-value">${data.amac || 'Belirtilmemiş'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Kapsam:</div>
+                                    <div class="info-value">${data.kapsam || 'Belirtilmemiş'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="footer">
+                            <p>Bu rapor Proje Takip Sistemi tarafından otomatik olarak oluşturulmuştur.</p>
+                            <p>Rapor ${data.projeAd} projesi için detaylı bilgileri içermektedir.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+                    printWindow.document.write(printContent);
+                    printWindow.document.close();
+                    printWindow.focus();
+                    setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                    }, 250);
+                } else {
+                    showToast(result.message || 'Proje verileri alınamadı.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Proje verileri alınırken bir hata oluştu.', 'error');
+            });
+        }
+        
+        // Proje detaylarını yazdırma fonksiyonu
+        function printProjectDetails() {
+            var printWindow = window.open('', '_blank');
+            var projeAd = document.getElementById('ViewProject_ProjeAd').textContent;
+            var mudurluk = document.getElementById('ViewProject_Mudurluk').textContent;
+            var baskanlik = document.getElementById('ViewProject_Baskanlik').textContent;
+            var durum = document.getElementById('ViewProject_Durum').textContent;
+            var amac = document.getElementById('ViewProject_Amac').textContent;
+            var kapsam = document.getElementById('ViewProject_Kapsam').textContent;
+            var bas = document.getElementById('ViewProject_bas').textContent;
+            var bit = document.getElementById('ViewProject_bit').textContent;
+            var maliyet = document.getElementById('ViewProject_Maliyet').textContent;
+            var personel = document.getElementById('ViewProject_personel').textContent;
+            var ekip = document.getElementById('ViewProject_Ekip').textContent;
+            var sponsor = document.getElementById('ViewProject_sponsor').textContent;
+            var olcut = document.getElementById('ViewProject_olcut').textContent;
+            
+            var printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Proje Detayları - ${projeAd}</title>
+                    <meta charset="utf-8">
+                    <style>
+                        body { 
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                            margin: 0; 
+                            padding: 20px;
+                            background-color: #f8f9fa;
+                        }
+                        .container {
+                            max-width: 800px;
+                            margin: 0 auto;
+                            background-color: white;
+                            padding: 40px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 40px; 
+                            border-bottom: 3px solid #007bff;
+                            padding-bottom: 20px;
+                        }
+                        .main-title { 
+                            font-size: 28px; 
+                            font-weight: bold; 
+                            color: #333; 
+                            margin-bottom: 10px;
+                            letter-spacing: 1px;
+                        }
+                        .project-name { 
+                            font-size: 20px; 
+                            color: #007bff; 
+                            font-weight: 600;
+                            margin-bottom: 10px;
+                        }
+                        .print-date {
+                            font-size: 14px;
+                            color: #6c757d;
+                            margin-top: 10px;
+                        }
+                        .section { 
+                            margin-bottom: 30px; 
+                            border: 1px solid #e9ecef;
+                            border-radius: 6px;
+                            overflow: hidden;
+                        }
+                        .section-title { 
+                            font-size: 18px; 
+                            font-weight: bold; 
+                            color: white; 
+                            background: linear-gradient(135deg, #007bff, #0056b3);
+                            padding: 15px 20px;
+                            margin: 0;
+                        }
+                        .section-content {
+                            padding: 20px;
+                            background-color: #fff;
+                        }
+                        .info-row { 
+                            display: flex; 
+                            margin-bottom: 15px;
+                            align-items: flex-start;
+                            border-bottom: 1px solid #f1f3f4;
+                            padding-bottom: 10px;
+                        }
+                        .info-row:last-child {
+                            border-bottom: none;
+                            margin-bottom: 0;
+                        }
+                        .info-label { 
+                            font-weight: 600; 
+                            width: 180px; 
+                            color: #495057;
+                            flex-shrink: 0;
+                        }
+                        .info-value { 
+                            flex: 1;
+                            color: #212529;
+                            line-height: 1.5;
+                        }
+                        .status-badge { 
+                            padding: 6px 12px; 
+                            border-radius: 20px; 
+                            font-size: 12px; 
+                            font-weight: bold;
+                            display: inline-block;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 40px;
+                            padding-top: 20px;
+                            border-top: 2px solid #e9ecef;
+                            color: #6c757d;
+                            font-size: 12px;
+                        }
+                        @@media print { 
+                            body { 
+                                margin: 0; 
+                                padding: 15px;
+                                background-color: white;
+                            }
+                            .container {
+                                box-shadow: none;
+                                border: 1px solid #ddd;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="main-title">PROJE DETAYLARI</div>
+                            <div class="project-name">${projeAd}</div>
+                            <div class="print-date">Yazdırma Tarihi: ${new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title">Temel Bilgiler</div>
+                            <div class="section-content">
+                                <div class="info-row">
+                                    <div class="info-label">Proje Adı:</div>
+                                    <div class="info-value">${projeAd}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Müdürlük:</div>
+                                    <div class="info-value">${mudurluk}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Başkanlık:</div>
+                                    <div class="info-value">${baskanlik}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Durum:</div>
+                                    <div class="info-value">
+                                        <span class="status-badge" style="background-color: #007bff; color: white;">${durum}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title">Proje Detayları</div>
+                            <div class="section-content">
+                                <div class="info-row">
+                                    <div class="info-label">Amaç:</div>
+                                    <div class="info-value">${amac || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Kapsam:</div>
+                                    <div class="info-value">${kapsam || '-'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title">Zaman ve Kaynak Bilgileri</div>
+                            <div class="section-content">
+                                <div class="info-row">
+                                    <div class="info-label">Başlangıç Tarihi:</div>
+                                    <div class="info-value">${bas || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Bitiş Tarihi:</div>
+                                    <div class="info-value">${bit || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Maliyet:</div>
+                                    <div class="info-value">${maliyet || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Personel Sayısı:</div>
+                                    <div class="info-value">${personel || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Ekip:</div>
+                                    <div class="info-value">${ekip || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Sponsor:</div>
+                                    <div class="info-value">${sponsor || '-'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Ölçüt:</div>
+                                    <div class="info-value">${olcut || '-'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="footer">
+                            <p>Bu rapor Proje Takip Sistemi tarafından otomatik olarak oluşturulmuştur.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+        
+        // Debounce fonksiyonu - performans optimizasyonu için
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Türkçe karakter normalizasyon fonksiyonu - büyük küçük harf duyarsız arama
+        function normalizeText(text) {
+            if (!text) return '';
+            // Önce Türkçe karakterleri değiştir, sonra küçük harfe çevir
+            return text
+                .replace(/Ğ/g, 'G')
+                .replace(/Ü/g, 'U')
+                .replace(/Ş/g, 'S')
+                .replace(/İ/g, 'I')
+                .replace(/Ö/g, 'O')
+                .replace(/Ç/g, 'C')
+                .replace(/ğ/g, 'g')
+                .replace(/ü/g, 'u')
+                .replace(/ş/g, 's')
+                .replace(/ı/g, 'i')
+                .replace(/ö/g, 'o')
+                .replace(/ç/g, 'c')
+                .toLowerCase();
+        }
+        
+        // Orijinal sıralama durumunu saklamak için
+        let originalRowOrder = [];
+        
+        // Sayfa yüklendiğinde orijinal sıralamayı kaydet
+        function saveOriginalOrder() {
+            const table = document.getElementById('projectsTable');
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                originalRowOrder = Array.from(tbody.querySelectorAll('tr')).map(row => row.cloneNode(true));
+            }
+        }
+        
+        // Filtreleme ve sıralama fonksiyonu - Reports sayfasındaki gelişmiş sistem
+        function filterAndSortProjects() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const statusValue = document.getElementById('statusFilter').value;
+            const sortValue = document.getElementById('sortBy').value;
+            const table = document.getElementById('projectsTable');
+            const tbody = table.querySelector('tbody');
+            
+            // Arama terimi boşsa reset davranışı
+            if (searchTerm === '') {
+                // Durum filtresini sıfırla
+                document.getElementById('statusFilter').value = '';
+                // Sıralama dropdown'ını sıfırla
+                document.getElementById('sortBy').value = '';
+                
+                // Orijinal sıralamayı geri yükle
+                tbody.innerHTML = '';
+                originalRowOrder.forEach(row => {
+                    tbody.appendChild(row.cloneNode(true));
+                });
+                
+                // Sonuç sayısını güncelle
+                updateResultCount(originalRowOrder.length, originalRowOrder.length);
+                return;
+            }
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Filtreleme
+            const filteredRows = rows.filter(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return false;
+                
+                // Arama filtresi - Türkçe karakter normalizasyonu ile
+                const projectName = normalizeText(cells[0].textContent);
+                const mudurluk = normalizeText(cells[1].textContent);
+                const baskanlik = normalizeText(cells[2].textContent);
+                const normalizedSearchTerm = normalizeText(searchTerm);
+                
+                const searchMatch = searchTerm === '' ||
+                    projectName.includes(normalizedSearchTerm) ||
+                    mudurluk.includes(normalizedSearchTerm) ||
+                    baskanlik.includes(normalizedSearchTerm) ||
+                    projectName.split(' ').some(word => word.startsWith(normalizedSearchTerm)) ||
+                    mudurluk.split(' ').some(word => word.startsWith(normalizedSearchTerm)) ||
+                    baskanlik.split(' ').some(word => word.startsWith(normalizedSearchTerm));
+                
+                // Durum filtresi
+                let statusMatch = true;
+                if (statusValue) {
+                    const statusCell = cells[5];
+                    const statusSpan = statusCell.querySelector('span');
+                    if (statusSpan) {
+                        const statusText = statusSpan.textContent.trim();
+                        const statusMap = {
+                            '1': 'Onay Bekliyor',
+                            '2': 'Planlama',
+                            '3': 'Devam Ediyor',
+                            '4': 'Tamamlandı',
+                            '5': 'İptal Edildi'
+                        };
+                        statusMatch = statusText === statusMap[statusValue];
+                    }
+                }
+                
+                return searchMatch && statusMatch;
+            });
+            
+            // Sıralama (sadece sıralama seçilmişse)
+            if (sortValue) {
+                filteredRows.sort((a, b) => {
+                    const aCells = a.querySelectorAll('td');
+                    const bCells = b.querySelectorAll('td');
+                    
+                    switch(sortValue) {
+                        case 'name-asc':
+                            return aCells[0].textContent.localeCompare(bCells[0].textContent, 'tr');
+                        case 'name-desc':
+                            return bCells[0].textContent.localeCompare(aCells[0].textContent, 'tr');
+                        case 'date-asc':
+                            const aDate = aCells[3].textContent.trim();
+                            const bDate = bCells[3].textContent.trim();
+                            if (aDate === '-' && bDate === '-') return 0;
+                            if (aDate === '-') return 1;
+                            if (bDate === '-') return -1;
+                            return new Date(aDate.split('.').reverse().join('-')) - new Date(bDate.split('.').reverse().join('-'));
+                        case 'date-desc':
+                            const aDateDesc = aCells[3].textContent.trim();
+                            const bDateDesc = bCells[3].textContent.trim();
+                            if (aDateDesc === '-' && bDateDesc === '-') return 0;
+                            if (aDateDesc === '-') return 1;
+                            if (bDateDesc === '-') return -1;
+                            return new Date(bDateDesc.split('.').reverse().join('-')) - new Date(aDateDesc.split('.').reverse().join('-'));
+                        case 'status-asc':
+                            const aStatus = aCells[5].querySelector('span')?.textContent || '';
+                            const bStatus = bCells[5].querySelector('span')?.textContent || '';
+                            return aStatus.localeCompare(bStatus, 'tr');
+                        case 'status-desc':
+                            const aStatusDesc = aCells[5].querySelector('span')?.textContent || '';
+                            const bStatusDesc = bCells[5].querySelector('span')?.textContent || '';
+                            return bStatusDesc.localeCompare(aStatusDesc, 'tr');
+                        default:
+                            return 0;
+                    }
+                });
+            }
+            
+            // Tabloyu güncelle
+            tbody.innerHTML = '';
+            filteredRows.forEach(row => tbody.appendChild(row));
+            
+            // Sonuç sayısını güncelle
+            updateResultCount(filteredRows.length, originalRowOrder.length);
+        }
+        
+
+        
+        // Sonuç sayısını güncelleme fonksiyonu - Reports sayfasındaki gelişmiş sistem
+        function updateResultCount(filtered, total) {
+            let countElement = document.getElementById('resultCount');
+            if (!countElement) {
+                countElement = document.createElement('div');
+                countElement.id = 'resultCount';
+                countElement.className = 'text-sm text-slate-600 mb-4 d-flex align-items-center justify-content-between';
+                countElement.style.cssText = 'padding: 0.75rem 1rem; background: #f8f9fa; border-radius: 0.5rem; border-left: 4px solid #0d6efd;';
+                const tableContainer = document.getElementById('projectsTable').parentElement;
+                tableContainer.insertBefore(countElement, document.getElementById('projectsTable'));
+            }
+            
+            const countText = filtered === total ?
+                `<i class="fas fa-list-ul me-2 text-primary"></i>Toplam <strong>${total}</strong> proje gösteriliyor` :
+                `<i class="fas fa-filter me-2 text-warning"></i><strong>${total}</strong> projeden <strong class="text-primary">${filtered}</strong> tanesi gösteriliyor`;
+            
+            // Temizleme butonu ekle (sadece filtreleme aktifse)
+            const clearButton = filtered !== total ? 
+                `<button class="btn btn-sm btn-outline-secondary ms-2" onclick="clearAllFilters()" title="Filtreleri Temizle">
+                    <i class="fas fa-times me-1"></i>Temizle
+                </button>` : '';
+            
+            countElement.innerHTML = `<span>${countText}</span><span>${clearButton}</span>`;
+        }
+        
+        // Tüm filtreleri temizleme fonksiyonu
+        function clearAllFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('sortBy').value = '';
+            filterAndSortProjects();
+            document.getElementById('searchInput').focus();
+        }
+        
+        // Proje detay modalı için global değişken
+        let currentProjectId = null;
+        
+        // İlerleme tab'ına tıklandığında çalışacak fonksiyon
+        function loadProjectProgress(projectId) {
+            currentProjectId = projectId;
+            const progressList = document.getElementById('projectProgressList');
+            
+            // Loading göster
+            progressList.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                    </div>
+                    <h6 class="mt-3 fw-bold text-dark">İlerleme verisi yükleniyor...</h6>
+                    <p class="mt-2 text-muted">Bu proje için ilerleme bilgileri getiriliyor.</p>
+                </div>
+            `;
+            
+            // API'den ilerleme verilerini getir
+            fetch(`/Projects/Index?handler=ProjectProgress&projectId=${projectId}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('API Response:', data);
+                if (data.success && data.progressList && Array.isArray(data.progressList)) {
+                    console.log('Progress list found:', data.progressList.length, 'items');
+                    displayProgressList(data.progressList);
+                } else {
+                    console.log('No progress data or invalid format:', data);
+                    displayEmptyProgress();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading progress:', error);
+                console.error('Error details:', error.message);
+                displayEmptyProgress();
+            });
+        }
+        
+        // İlerleme listesini göster
+        function displayProgressList(progressList) {
+            const progressContainer = document.getElementById('projectProgressList');
+            
+            if (progressList.length === 0) {
+                displayEmptyProgress();
+                return;
+            }
+            
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-3 py-2 fw-bold">Gantt Aşaması</th>
+                                <th class="px-3 py-2 fw-bold">İlerleme</th>
+                                <th class="px-3 py-2 fw-bold">%</th>
+                                <th class="px-3 py-2 fw-bold">Tarih</th>
+                                <th class="px-3 py-2 fw-bold">Kim Ekledi</th>
+                                <th class="px-3 py-2 fw-bold">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            progressList.forEach(progress => {
+                html += `
+                    <tr>
+                        <td class="px-3 py-2">${progress.ganttAsama || '-'}</td>
+                        <td class="px-3 py-2">${progress.ilerleme || '-'}</td>
+                        <td class="px-3 py-2">
+                            <div class="d-flex align-items-center">
+                                <div class="progress me-2" style="width: 60px; height: 8px;">
+                                    <div class="progress-bar" role="progressbar" style="width: ${progress.yuzde || 0}%"></div>
+                                </div>
+                                <span class="text-muted small">${progress.yuzde || 0}%</span>
+                            </div>
+                        </td>
+                        <td class="px-3 py-2">${progress.tarih || '-'}</td>
+                        <td class="px-3 py-2">
+                            <span class="badge bg-info">${progress.ekleyenKullanici || 'Bilinmiyor'}</span>
+                        </td>
+                        <td class="px-3 py-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="editProgressInModal(${progress.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            progressContainer.innerHTML = html;
+        }
+        
+        // Boş ilerleme durumu
+        function displayEmptyProgress() {
+            const progressContainer = document.getElementById('projectProgressList');
+            progressContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                        <i class="fas fa-chart-line" style="font-size: 1.5rem; color: #6c757d;"></i>
+                    </div>
+                    <h6 class="mt-3 fw-bold text-dark">Henüz ilerleme kaydı bulunmamaktadır</h6>
+                    <p class="mt-2 text-muted">Bu proje için henüz ilerleme kaydı eklenmemiş.</p>
+                    <button type="button" class="btn btn-primary mt-3" onclick="addProgressForProject()">
+                        <i class="fas fa-plus me-2"></i>İlk İlerlemeyi Ekle
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Proje için yeni ilerleme ekleme
+        function addProgressForProject() {
+            if (currentProjectId) {
+                // İlerleme sayfasına yönlendir ve proje ID'sini parametre olarak geç
+                window.open(`/Progress?projectId=${currentProjectId}`, '_blank');
+            } else {
+                showToast('Proje bilgisi bulunamadı', 'error');
+            }
+        }
+        
+        // Modal içinde ilerleme düzenleme
+        function editProgressInModal(progressId) {
+            // İlerleme verilerini getir ve modal aç
+            fetch(`/Projects/Index?handler=GetProgress&id=${progressId}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.data) {
+                    const progress = data.data;
+                    
+                    // Edit modal form alanlarını doldur
+                    document.getElementById('EditIlerleme_id').value = progress.id;
+                    document.getElementById('EditIlerleme_ilerlemeTanimi').value = progress.ilerleme || '';
+                    document.getElementById('EditIlerleme_tamamlanmaYuzdesi').value = progress.yuzde || 0;
+                    document.getElementById('EditIlerleme_aciklama').value = progress.aciklama || '';
+                    
+                    // Select2 elementleri için özel işlem
+                    if (progress.projeId) {
+                        $('#EditIlerleme_projeId').val(progress.projeId).trigger('change');
+                        
+                        // Gantt aşamalarını yükle ve seçili olanı ayarla
+                        loadGanttStages(progress.projeId, 'EditIlerleme_ganttId');
+                        setTimeout(() => {
+                            if (progress.ganttId) {
+                                $('#EditIlerleme_ganttId').val(progress.ganttId).trigger('change');
+                            }
+                        }, 100);
+                    }
+                    
+                    // Modal'ı aç
+                    new bootstrap.Modal(document.getElementById('editIleremeModal')).show();
+                } else {
+                    showToast('Hata', 'İlerleme verileri alınamadı.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading progress data:', error);
+                showToast('Hata', 'İlerleme verileri yüklenirken bir hata oluştu.', 'error');
+            });
+        }
+        
+        // Timeline yükleme fonksiyonu
+        function loadProjectTimeline(projectId) {
+            currentProjectId = projectId;
+            const timelineContainer = document.getElementById('projectTimelineContainer');
+            
+            // Loading göster
+            timelineContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                    </div>
+                    <h6 class="mt-3 fw-bold text-dark">Timeline yükleniyor...</h6>
+                    <p class="mt-2 text-muted">Bu proje için timeline bilgileri getiriliyor.</p>
+                </div>
+            `;
+            
+            // API'den timeline verilerini getir (ilerlemelerden)
+            fetch(`/Projects/Index?handler=ProjectProgress&projectId=${projectId}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.progressList && Array.isArray(data.progressList)) {
+                    displayTimeline(data.progressList);
+                } else {
+                    displayEmptyTimeline();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading timeline:', error);
+                displayEmptyTimeline();
+            });
+        }
+        
+        // Timeline yenileme fonksiyonu
+        function refreshTimeline() {
+            if (currentProjectId) {
+                loadProjectTimeline(currentProjectId);
+            }
+        }
+        
+        // Timeline sıralama fonksiyonu
+        let currentTimelineData = [];
+        
+        function sortTimeline(sortType) {
+            if (currentTimelineData.length === 0) return;
+            
+            let sortedData = [...currentTimelineData];
+            
+            switch(sortType) {
+                case 'date-desc':
+                    sortedData.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+                    break;
+                case 'date-asc':
+                    sortedData.sort((a, b) => new Date(a.tarih) - new Date(b.tarih));
+                    break;
+                case 'progress-desc':
+                    sortedData.sort((a, b) => (b.yuzde || 0) - (a.yuzde || 0));
+                    break;
+                case 'progress-asc':
+                    sortedData.sort((a, b) => (a.yuzde || 0) - (b.yuzde || 0));
+                    break;
+                default:
+                    sortedData.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+            }
+            
+            displayTimeline(sortedData, false);
+        }
+        
+        // Timeline görüntüleme fonksiyonu
+        function displayTimeline(progressList, saveData = true) {
+            const timelineContainer = document.getElementById('projectTimelineContainer');
+            
+            if (progressList.length === 0) {
+                displayEmptyTimeline();
+                return;
+            }
+            
+            // Veriyi sakla (sadece ilk yüklemede)
+            if (saveData) {
+                currentTimelineData = [...progressList];
+            }
+            
+            // İlerlemeleri tarihe göre sırala (en yeni en üstte) - sadece saveData true ise
+            const sortedProgress = saveData ? progressList.sort((a, b) => new Date(b.tarih) - new Date(a.tarih)) : progressList;
+            
+            let html = `
+                <div id="timeline-content" class="modal-timeline">
+                    <ul class="timeline">
+            `;
+            
+            sortedProgress.forEach((progress, index) => {
+                const date = new Date(progress.tarih);
+                const formattedDate = date.toLocaleDateString('tr-TR', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                const progressColor = getProgressColor(progress.yuzde || 0);
+                const isCompleted = (progress.yuzde || 0) >= 100;
+                
+                html += `
+                    <li class="event" data-date="${formattedDate}">
+                        <h3>${progress.ganttAsama || 'Genel İlerleme'}</h3>
+                        <p>${progress.ilerleme || 'İlerleme açıklaması bulunmamaktadır.'}</p>
+                        <div class="timeline-progress-info">
+                            <div class="progress" style="height: 6px; margin-top: 10px;">
+                                <div class="progress-bar" 
+                                     role="progressbar" 
+                                     style="width: ${progress.yuzde || 0}%; background-color: ${progressColor};" 
+                                     aria-valuenow="${progress.yuzde || 0}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small class="text-muted mt-1 d-block">${progress.yuzde || 0}% tamamlandı</small>
+                        </div>
+                    </li>
+                `;
+            });
+            
+            html += `
+                    </ul>
+                </div>
+            `;
+            
+            timelineContainer.innerHTML = html;
+        }
+        
+        // Boş timeline durumu
+        function displayEmptyTimeline() {
+            const timelineContainer = document.getElementById('projectTimelineContainer');
+            timelineContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                        <i class="fas fa-clock" style="font-size: 1.5rem; color: #6c757d;"></i>
+                    </div>
+                    <h6 class="mt-3 fw-bold text-dark">Henüz timeline verisi bulunmamaktadır</h6>
+                    <p class="mt-2 text-muted">Bu proje için henüz ilerleme kaydı eklenmemiş.</p>
+                    <button type="button" class="btn btn-primary mt-3" onclick="addProgressForProject()">
+                        <i class="fas fa-plus me-2"></i>İlk İlerlemeyi Ekle
+                    </button>
+                </div>
+            `;
+        }
+        
+        // İlerleme yüzdesine göre renk belirleme - 100'e yaklaştıkça yeşile geçiş
+        function getProgressColor(percentage) {
+            // 100'e yaklaştıkça yeşile doğru yumuşak geçiş
+            if (percentage >= 95) return '#28a745'; // Tam yeşil - %95 ve üzeri
+            if (percentage >= 90) return '#32c851'; // Açık yeşil - %90-94
+            if (percentage >= 85) return '#3dd85d'; // Daha açık yeşil - %85-89
+            if (percentage >= 80) return '#48e869'; // Yeşilimsi - %80-84
+            if (percentage >= 75) return '#17a2b8'; // Mavi - %75-79
+            if (percentage >= 65) return '#20c997'; // Teal - %65-74
+            if (percentage >= 50) return '#ffc107'; // Sarı - %50-64
+            if (percentage >= 35) return '#fd7e14'; // Turuncu - %35-49
+            if (percentage >= 25) return '#ff6b35'; // Koyu turuncu - %25-34
+            return '#dc3545'; // Kırmızı - %0-24
+        }
+        
+        // Proje seçildiğinde Gantt aşamalarını yükle
+        function loadGanttStages(projeId, targetSelectId) {
+            const ganttSelect = document.getElementById(targetSelectId);
+            ganttSelect.innerHTML = '<option value="">Gantt aşaması seçiniz</option>';
+            
+            if (!projeId) return;
+            
+            // Backend'den Gantt aşamalarını getir
+            fetch(`/Progress/Index?handler=GanttStages&projeId=${projeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(gantt => {
+                        const option = document.createElement('option');
+                        option.value = gantt.id;
+                        option.textContent = gantt.asama;
+                        ganttSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Gantt aşamaları yüklenirken hata:', error);
+                });
+        }
+        
+        // Tooltip başlatma
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bootstrap tooltip'lerini başlat
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    html: true,
+                    trigger: 'hover focus',
+                    delay: { show: 300, hide: 100 },
+                    customClass: 'team-tooltip'
+                });
+            });
+        });
+        
+        // Arama ve filtreleme event listeners - Reports sayfasındaki gelişmiş sistem
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const sortBy = document.getElementById('sortBy');
+            
+            // Orijinal sıralamayı kaydet
+            saveOriginalOrder();
+            
+            if (searchInput && statusFilter && sortBy) {
+                // Debounced arama - performans için 300ms gecikme
+                const debouncedFilter = debounce(filterAndSortProjects, 300);
+                
+                // Arama input eventi
+                searchInput.addEventListener('input', debouncedFilter);
+                
+                // Durum filtresi eventi
+                statusFilter.addEventListener('change', filterAndSortProjects);
+                
+                // Sıralama eventi
+                sortBy.addEventListener('change', filterAndSortProjects);
+                
+                // Ctrl+A ile tümünü seç
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'a') {
+                        e.preventDefault();
+                        searchInput.select();
+                    }
+                });
+                
+                // ESC tuşu ile arama temizleme
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        searchInput.value = '';
+                        filterAndSortProjects();
+                        searchInput.focus();
+                    }
+                });
+                
+                // Arama input'una odaklanma kısayolu (Ctrl+F)
+                document.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'f') {
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                });
+            }
+        });
+        
+        // Ekip seçimi için Select2 ve badge işlevselliği
+        $(document).ready(function() {
+            // Select2 başlatma
+            $('#EditProject_EkipSelect').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Kullanıcı seçiniz',
+                allowClear: false,
+                tags: false,
+                minimumInputLength: 0,
+                selectOnClose: false,
+                dropdownParent: $('#editProjectModal'),
+                closeOnSelect: true,
+                language: {
+                    noResults: function() {
+                        return 'Sonuç bulunamadı';
+                    },
+                    searching: function() {
+                        return 'Aranıyor...';
+                    },
+                    inputTooShort: function() {
+                        return 'Arama yapmak için yazın';
+                    }
+                },
+                escapeMarkup: function(markup) {
+                    return markup;
+                }
+            });
+            
+            // Kullanıcı seçildiğinde badge ekleme
+            $('#EditProject_EkipSelect').on('select2:select', function(e) {
+                const selectedData = e.params.data;
+                const userId = selectedData.id;
+                const userText = selectedData.text;
+                
+                if (userId && userId !== '') {
+                    addUserBadge(userId, userText);
+                    updateHiddenInput();
+                    
+                    // Seçimi temizle ve placeholder'a geri dön
+                    $('#EditProject_EkipSelect').val('').trigger('change');
+                }
+            });
+        });
+        
+        // Kullanıcı badge'i ekleme fonksiyonu
+        function addUserBadge(userId, userText) {
+            const container = document.getElementById('selectedUsersContainer');
+            
+            // Zaten var mı kontrol et
+            if (document.getElementById(`user-badge-${userId}`)) {
+                return;
+            }
+            
+            const badge = document.createElement('span');
+            badge.id = `user-badge-${userId}`;
+            badge.className = 'badge bg-primary d-inline-flex align-items-center';
+            badge.style.fontSize = '0.875rem';
+            badge.style.padding = '0.5rem 0.75rem';
+            badge.style.borderRadius = '0.375rem';
+            badge.style.whiteSpace = 'nowrap';
+            badge.style.width = 'auto';
+            badge.style.minWidth = 'fit-content';
+            badge.style.maxWidth = '100%';
+            badge.innerHTML = `
+                <i class="fas fa-user me-2"></i>
+                ${userText}
+                <button type="button" class="btn-close btn-close-white ms-2" style="font-size: 0.7rem;" onclick="removeUserBadgeById('${userId}')"></button>
+            `;
+            
+            container.appendChild(badge);
+        }
+        
+        // Kullanıcı badge'i kaldırma fonksiyonu
+        function removeUserBadge(userId) {
+            const badge = document.getElementById(`user-badge-${userId}`);
+            if (badge) {
+                badge.remove();
+            }
+        }
+        
+        // Badge'den kullanıcı kaldırma (X butonuna tıklandığında)
+        function removeUserBadgeById(userId) {
+            // Badge'i kaldır
+            removeUserBadge(userId);
+            
+            // Hidden input'u güncelle
+            updateHiddenInput();
+        }
+        
+        // Hidden input'u güncelleme fonksiyonu
+        function updateHiddenInput() {
+            const badges = document.querySelectorAll('#selectedUsersContainer .badge');
+            const selectedTexts = [];
+            
+            badges.forEach(badge => {
+                const badgeText = badge.textContent.trim();
+                // X butonunu çıkar
+                const cleanText = badgeText.replace(/\s*×\s*$/, '').trim();
+                if (cleanText) {
+                    selectedTexts.push(cleanText);
+                }
+            });
+            
+            document.getElementById('EditProject_Ekip').value = selectedTexts.join(', ');
+        }
+        
+        // Modal açıldığında mevcut ekip verilerini yükleme
+        function loadExistingTeamData(ekipData) {
+            // Önce temizle
+            $('#EditProject_EkipSelect').val('').trigger('change');
+            document.getElementById('selectedUsersContainer').innerHTML = '';
+            
+            if (ekipData && ekipData.trim() !== '') {
+                // Ekip verisini parse et (virgülle ayrılmış kullanıcı isimleri)
+                const teamMembers = ekipData.split(',').map(member => member.trim());
+                
+                teamMembers.forEach(memberName => {
+                    // Kullanıcı listesinde bu ismi ara
+                    const option = $(`#EditProject_EkipSelect option`).filter(function() {
+                        return $(this).text().includes(memberName);
+                    }).first();
+                    
+                    if (option.length > 0) {
+                        const userId = option.val();
+                        const userText = option.text();
+                        
+                        addUserBadge(userId, userText);
+                    }
+                });
+            }
+        }
+    </script>
+}

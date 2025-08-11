@@ -1,0 +1,676 @@
+@page
+@model ProjeTakip.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-2 fw-bold text-dark">Kullanıcı Yönetimi</h4>
+                            <p class="text-muted mb-0">Sistem kullanıcılarını yönetin ve düzenleyin</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                <i class="fas fa-plus me-2"></i>Yeni Kullanıcı Ekle
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Search and Filter Controls -->
+                    <div class="row mt-4 g-3">
+                        <div class="col-lg-6">
+                            <div class="position-relative">
+                                <div class="position-absolute top-50 start-0 translate-middle-y ps-3">
+                                    <i class="fas fa-search text-muted"></i>
+                                </div>
+                                <input type="text" id="searchInput" placeholder="Kullanıcı ara..." class="form-control form-control-lg ps-5">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <select id="roleFilter" class="form-select form-select-lg">
+                                        <option value="">Tüm Roller</option>
+                                        <option value="Admin">Admin</option>
+                                        <option value="Project Manager">Proje Yöneticisi</option>
+                                        <option value="Developer">Geliştirici</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <select id="sortBy" class="form-select form-select-lg">
+                                        <option value="" selected>Sıralama Seçin</option>
+                                        <option value="id_asc">Kullanıcı ID (1-9)</option>
+                                        <option value="id_desc">Kullanıcı ID (9-1)</option>
+                                        <option value="name_asc">Ad Soyad (A-Z)</option>
+                                        <option value="name_desc">Ad Soyad (Z-A)</option>
+                                        <option value="role_asc">Rol (A-Z)</option>
+                                        <option value="role_desc">Rol (Z-A)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Users Table Card -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    @if (Model.Kullanicilar.Any())
+                    {
+                        <div class="table-responsive">
+                            <table id="usersTable" class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-4 py-3 fw-bold" style="width: 25%;">Kullanıcı ID</th>
+                                        <th class="px-4 py-3 fw-bold" style="width: 25%;">Ad Soyad</th>
+                                        <th class="px-4 py-3 fw-bold" style="width: 25%;">Rol</th>
+                                        <th class="px-4 py-3 fw-bold" style="width: 25%;">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var kullanici in Model.Kullanicilar)
+                                    {
+                                        <tr>
+                                            <td class="px-4 py-3 fw-semibold text-primary">@kullanici.Kimlik</td>
+                                            <td class="px-4 py-3 fw-semibold text-dark">@kullanici.AdSoyad</td>
+                                            <td class="px-4 py-3">
+                                                @switch (kullanici.Rol)
+                                                {
+                                                    case 1:
+                                                        <span class="badge bg-danger">Admin</span>
+                                                        break;
+                                                    case 2:
+                                                        <span class="badge bg-success">Proje Yöneticisi</span>
+                                                        break;
+                                                    case 3:
+                                                        <span class="badge bg-info">Geliştirici</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">Bilinmeyen</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-warning" 
+                                                            onclick="editUser(@kullanici.id, '@kullanici.Kimlik', '@kullanici.AdSoyad', @kullanici.Rol)">
+                                                        <i class="fas fa-edit me-1"></i>Düzenle
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-danger" 
+                                                            onclick="deleteUser(@kullanici.id, '@kullanici.AdSoyad')">
+                                                        <i class="fas fa-trash me-1"></i>Sil
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background: #f8f9fa; border: 2px solid #dee2e6;">
+                                <i class="fas fa-users" style="font-size: 2rem; color: #6c757d;"></i>
+                            </div>
+                            <h3 class="mt-4 fw-bold text-dark">Henüz kullanıcı bulunmamaktadır</h3>
+                            <p class="mt-2 text-muted">Başlamak için yeni bir kullanıcı ekleyin ve kullanıcılarınızı yönetmeye başlayın.</p>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                    <i class="fas fa-plus me-2"></i>Yeni Kullanıcı Ekle
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kullanıcı Ekleme Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="addUserForm" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title" id="addUserModalLabel"><i class="fas fa-user-plus me-2"></i>Yeni Kullanıcı Ekle</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                         <label asp-for="AddUser.Kimlik" class="form-label fw-semibold">Kullanıcı ID</label>
+                         <input asp-for="AddUser.Kimlik" class="form-control form-control-lg" placeholder="Kullanıcı ID'nizi giriniz" />
+                         <span asp-validation-for="AddUser.Kimlik" class="text-danger"></span>
+                     </div>
+                     <div class="mb-4">
+                         <label asp-for="AddUser.AdSoyad" class="form-label fw-semibold">Ad Soyad</label>
+                         <input asp-for="AddUser.AdSoyad" class="form-control form-control-lg" placeholder="Ad ve soyadını giriniz" />
+                         <span asp-validation-for="AddUser.AdSoyad" class="text-danger"></span>
+                     </div>
+                     <div class="mb-4">
+                         <label asp-for="AddUser.Rol" class="form-label fw-semibold">Rol</label>
+                         <select asp-for="AddUser.Rol" class="form-select form-select-lg">
+                             <option value="0">Rol seçiniz</option>
+                             <option value="1">Admin</option>
+                             <option value="2">Proje Yöneticisi</option>
+                             <option value="3">Geliştirici</option>
+                         </select>
+                         <span asp-validation-for="AddUser.Rol" class="text-danger"></span>
+                     </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                     <button type="button" class="btn btn-light btn-lg me-2" data-bs-dismiss="modal">İptal</button>
+                     <button type="submit" class="btn btn-primary btn-lg">Kullanıcı Ekle</button>
+                 </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Kullanıcı Düzenleme Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="editUserForm" method="post" asp-page-handler="Edit">
+                @Html.AntiForgeryToken()
+                <input asp-for="EditUser.Id" type="hidden" id="EditUser_Id" />
+                <div class="modal-header bg-warning text-dark border-0">
+                    <h5 class="modal-title" id="editUserModalLabel"><i class="fas fa-user-edit me-2"></i>Kullanıcı Düzenle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                         <label asp-for="EditUser.Kimlik" class="form-label fw-semibold">Kullanıcı ID</label>
+                         <input asp-for="EditUser.Kimlik" class="form-control form-control-lg" placeholder="Kullanıcı ID'nizi giriniz" id="EditUser_Kimlik" />
+                         <span asp-validation-for="EditUser.Kimlik" class="text-danger"></span>
+                     </div>
+                     <div class="mb-4">
+                         <label asp-for="EditUser.AdSoyad" class="form-label fw-semibold">Ad Soyad</label>
+                         <input asp-for="EditUser.AdSoyad" class="form-control form-control-lg" placeholder="Ad ve soyadını giriniz" id="EditUser_AdSoyad" />
+                         <span asp-validation-for="EditUser.AdSoyad" class="text-danger"></span>
+                     </div>
+                     <div class="mb-4">
+                         <label asp-for="EditUser.Rol" class="form-label fw-semibold">Rol</label>
+                         <select asp-for="EditUser.Rol" class="form-select form-select-lg" id="EditUser_Rol">
+                             <option value="0">Rol seçiniz</option>
+                             <option value="1">Admin</option>
+                             <option value="2">Proje Yöneticisi</option>
+                             <option value="3">Geliştirici</option>
+                         </select>
+                         <span asp-validation-for="EditUser.Rol" class="text-danger"></span>
+                     </div>
+                 </div>
+                 <div class="modal-footer border-0 p-4">
+                     <button type="button" class="btn btn-light btn-lg me-2" data-bs-dismiss="modal">İptal</button>
+                     <button type="submit" class="btn btn-warning btn-lg">Güncelle</button>
+                 </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="deleteUserForm" method="post" asp-page-handler="Delete">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="deleteUserId" name="id" />
+                <div class="modal-header bg-danger text-white border-0">
+                    <h5 class="modal-title" id="deleteUserModalLabel"><i class="fas fa-user-times me-2"></i>Kullanıcı Sil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mb-3">Bu kullanıcıyı silmek istediğinizden emin misiniz?</h5>
+                        <p class="text-muted mb-3">Bu işlem geri alınamaz ve tüm veriler kalıcı olarak silinecektir.</p>
+                        <div class="bg-light rounded p-3">
+                            <p class="mb-0"><strong>Kullanıcı:</strong> <span id="deleteUserName" class="text-danger fw-bold"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light btn-lg me-2" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger btn-lg">Sil</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sayfa yüklendiğinde çalışacak kodlar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toast mesajları göster
+            @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+            {
+                <text>
+                showToast('@TempData["SuccessMessage"]', 'success');
+                </text>
+            }
+            
+            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+            {
+                <text>
+                showToast('@TempData["ErrorMessage"]', 'error');
+                </text>
+            }
+            
+            // Modal kapandığında formları temizle
+            document.getElementById('addUserModal').addEventListener('hidden.bs.modal', function() {
+                clearForm('addUserModal');
+            });
+            
+            document.getElementById('editUserModal').addEventListener('hidden.bs.modal', function() {
+                clearForm('editUserModal');
+            });
+            
+            // AJAX form submissions
+            setupAjaxForms();
+        });
+        
+        // AJAX form setup
+        function setupAjaxForms() {
+            // Add User Form
+            document.getElementById('addUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitFormAjax(this, function(success, message) {
+                    // Toast'ı hemen göster
+                    showToast(message, success ? 'success' : 'error');
+                    
+                    if (success) {
+                        bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                        clearForm('addUserModal');
+                        setTimeout(() => {
+                            location.reload(); // Tabloyu yenile
+                        }, 300);
+                    }
+                });
+            });
+            
+            // Edit User Form
+            document.getElementById('editUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitFormAjax(this, function(success, message) {
+                    // Toast'ı hemen göster
+                    showToast(message, success ? 'success' : 'error');
+                    
+                    if (success) {
+                        bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                        clearForm('editUserModal');
+                        setTimeout(() => {
+                            location.reload(); // Tabloyu yenile
+                        }, 300);
+                    }
+                });
+            });
+            
+            // Delete User Form
+            document.getElementById('deleteUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitFormAjax(this, function(success, message) {
+                    // Toast'ı hemen göster
+                    showToast(message, success ? 'success' : 'error');
+                    
+                    if (success) {
+                        bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
+                        setTimeout(() => {
+                            location.reload(); // Tabloyu yenile
+                        }, 300);
+                    }
+                });
+            });
+        }
+        
+        // AJAX form submission helper
+         function submitFormAjax(form, callback) {
+             var formData = new FormData(form);
+             
+             fetch(form.action || window.location.pathname, {
+                 method: 'POST',
+                 body: formData,
+                 headers: {
+                     'X-Requested-With': 'XMLHttpRequest'
+                 }
+             })
+             .then(response => {
+                 // Check if response is JSON
+                 const contentType = response.headers.get('content-type');
+                 if (contentType && contentType.includes('application/json')) {
+                     return response.json();
+                 } else {
+                     // Non-JSON response - check HTTP status
+                     if (response.ok) {
+                         return response.text().then(text => ({ success: true, message: 'İşlem başarıyla tamamlandı.' }));
+                     } else {
+                         return response.text().then(text => ({ success: false, message: 'Bir hata oluştu. Lütfen tekrar deneyin.' }));
+                     }
+                 }
+             })
+             .then(data => {
+                 if (data.success !== undefined) {
+                     callback(data.success, data.message);
+                 } else {
+                     // Fallback
+                     callback(true, 'İşlem başarıyla tamamlandı.');
+                 }
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                 callback(false, 'Bir hata oluştu. Lütfen tekrar deneyin.');
+             });
+         }
+        
+        // Kullanıcı düzenleme fonksiyonu
+        function editUser(id, kimlik, adSoyad, rol) {
+            // Form elemanlarını ID ile bul (daha güvenilir)
+            document.getElementById('EditUser_Id').value = id;
+            document.getElementById('EditUser_Kimlik').value = kimlik;
+            document.getElementById('EditUser_AdSoyad').value = adSoyad;
+            
+            // Select2 elementleri için özel işlem
+            $('#EditUser_Rol').val(rol).trigger('change');
+            
+            var editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            editModal.show();
+        }
+        
+        // Kullanıcı silme fonksiyonu
+        function deleteUser(id, adSoyad) {
+            document.getElementById('deleteUserId').value = id;
+            document.getElementById('deleteUserName').textContent = adSoyad;
+            
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
+            deleteModal.show();
+        }
+        
+        // Form temizleme fonksiyonu
+        function clearForm(modalId) {
+            var modal = document.getElementById(modalId);
+            var inputs = modal.querySelectorAll('input[type="text"], input[type="hidden"]');
+            
+            inputs.forEach(function(input) {
+                if (input.type !== 'hidden' || input.name.includes('Id')) {
+                    input.value = '';
+                }
+            });
+            
+            // Select2 elementlerini temizle
+            var selects = modal.querySelectorAll('select');
+            selects.forEach(function(select) {
+                $(select).val('').trigger('change');
+            });
+            
+            // Validation mesajlarını temizle
+            var validationSpans = modal.querySelectorAll('.text-danger');
+            validationSpans.forEach(function(span) {
+                span.textContent = '';
+            });
+        }
+        
+        // Debounce fonksiyonu - gerçek zamanlı arama için
+        let searchTimeout;
+        function debounce(func, delay) {
+            return function(...args) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+        
+        // Hızlı filtreleme ve sıralama fonksiyonu
+        function filterAndSortUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            const table = document.getElementById('usersTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Hızlı filtreleme - her satırı gizle/göster
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) {
+                    row.style.display = 'none';
+                    return;
+                }
+                
+                const kimlik = cells[0].textContent.toLowerCase();
+                const adSoyad = cells[1].textContent.toLowerCase();
+                const rolText = cells[2].textContent.toLowerCase().trim();
+                
+                // Arama filtresi - gerçek zamanlı arama
+                let matchesSearch = true;
+                if (searchTerm !== '') {
+                    matchesSearch = kimlik.includes(searchTerm) || 
+                                  adSoyad.includes(searchTerm) ||
+                                  adSoyad.split(' ').some(word => word.startsWith(searchTerm));
+                }
+                
+                // Rol filtresi
+                let matchesRole = true;
+                if (roleFilter !== '' && roleFilter !== 'Tüm Roller') {
+                    if (roleFilter === 'Admin') {
+                        matchesRole = rolText.includes('admin');
+                    } else if (roleFilter === 'Project Manager') {
+                        matchesRole = rolText.includes('proje yöneticisi');
+                    } else if (roleFilter === 'Developer') {
+                        matchesRole = rolText.includes('geliştirici');
+                    }
+                }
+                
+                // Satırı göster/gizle
+                if (matchesSearch && matchesRole) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Görünür satırları sırala
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            
+            // Sıralama - sadece görünür satırları sırala
+            if (sortBy && sortBy !== '') {
+                visibleRows.sort((a, b) => {
+                    const aCells = a.querySelectorAll('td');
+                    const bCells = b.querySelectorAll('td');
+                    
+                    let aValue, bValue;
+                    
+                    switch(sortBy) {
+                        case 'name_asc':
+                            aValue = aCells[1].textContent.toLowerCase();
+                            bValue = bCells[1].textContent.toLowerCase();
+                            return aValue.localeCompare(bValue);
+                        case 'name_desc':
+                            aValue = aCells[1].textContent.toLowerCase();
+                            bValue = bCells[1].textContent.toLowerCase();
+                            return bValue.localeCompare(aValue);
+                        case 'role_asc':
+                            aValue = aCells[2].textContent.toLowerCase();
+                            bValue = bCells[2].textContent.toLowerCase();
+                            return aValue.localeCompare(bValue);
+                        case 'role_desc':
+                            aValue = aCells[2].textContent.toLowerCase();
+                            bValue = bCells[2].textContent.toLowerCase();
+                            return bValue.localeCompare(aValue);
+                        case 'id_asc':
+                            aValue = parseInt(aCells[0].textContent.trim());
+                            bValue = parseInt(bCells[0].textContent.trim());
+                            return aValue - bValue;
+                        case 'id_desc':
+                            aValue = parseInt(aCells[0].textContent.trim());
+                            bValue = parseInt(bCells[0].textContent.trim());
+                            return bValue - aValue;
+                        default:
+                            return 0;
+                    }
+                });
+                
+                // Sıralanmış satırları tabloya ekle
+                tbody.innerHTML = '';
+                visibleRows.forEach(row => tbody.appendChild(row));
+                
+                // Gizli satırları da ekle (en sona)
+                const hiddenRows = rows.filter(row => row.style.display === 'none');
+                hiddenRows.forEach(row => tbody.appendChild(row));
+            }
+            
+            // Sonuç sayısını güncelle
+            updateResultCount(visibleCount, rows.length);
+        }
+        
+
+        
+        function updateResultCount(filtered, total) {
+            let countElement = document.getElementById('resultCount');
+            if (!countElement) {
+                // Sonuç sayısı elementini oluştur
+                const headerDiv = document.querySelector('.flex.items-center.justify-between');
+                if (headerDiv) {
+                    countElement = document.createElement('div');
+                    countElement.id = 'resultCount';
+                    countElement.className = 'text-sm text-gray-600 mt-2';
+                    headerDiv.appendChild(countElement);
+                }
+            }
+            
+            @* if (countElement) {
+                if (filtered === total) {
+                    countElement.textContent = `Toplam ${total} kullanıcı`;
+                } else {
+                    countElement.textContent = `${filtered} / ${total} kullanıcı gösteriliyor`;
+                }
+            } *@
+        }
+        
+        // Event listener'ları ekle
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const roleFilter = document.getElementById('roleFilter');
+            const sortBy = document.getElementById('sortBy');
+            
+            if (searchInput) {
+                // Gerçek zamanlı arama - debounce ile optimize edilmiş
+                const debouncedFilter = debounce(filterAndSortUsers, 150);
+                
+                searchInput.addEventListener('input', function() {
+                    // Anlık filtreleme - debounce olmadan
+                    filterAndSortUsers();
+                });
+                
+
+                
+                // Ctrl+A ile tüm metni seç
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'a') {
+                        e.preventDefault();
+                        this.select();
+                    }
+                });
+            }
+            
+            if (roleFilter) {
+                roleFilter.addEventListener('change', filterAndSortUsers);
+            }
+            
+            if (sortBy) {
+                sortBy.addEventListener('change', filterAndSortUsers);
+            }
+            
+            // İlk yüklemede sonuç sayısını ayarla
+            const table = document.getElementById('usersTable');
+            if (table) {
+                const rows = table.querySelectorAll('tbody tr');
+                updateResultCount(rows.length, rows.length);
+            }
+        });
+        
+        // Toast container oluştur
+        function createToastContainer() {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                container.style.zIndex = '1055';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast mesaj gösterme fonksiyonu
+        function showToast(message, type) {
+            var container = createToastContainer();
+            
+            // Aynı mesajın zaten gösterilip gösterilmediğini kontrol et
+            var existingToasts = container.querySelectorAll('.toast');
+            for (var i = 0; i < existingToasts.length; i++) {
+                var existingMessage = existingToasts[i].querySelector('.toast-body').textContent.trim();
+                if (existingMessage === message) {
+                    return; // Aynı mesaj zaten gösteriliyor, yeni toast ekleme
+                }
+            }
+            
+            // Maksimum 3 toast'a izin ver, fazlasını kaldır
+            if (existingToasts.length >= 3) {
+                var oldestToast = existingToasts[0];
+                if (oldestToast.parentNode) {
+                    oldestToast.parentNode.removeChild(oldestToast);
+                }
+            }
+            
+            var toastClass = type === 'success' ? 'bg-success' : 'bg-danger';
+            var toastHtml = `
+                <div class="toast align-items-center text-white ${toastClass} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', toastHtml);
+            
+            // Toast'ı göster
+            var toastElement = container.lastElementChild;
+            var toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 3000
+            });
+            
+            toast.show();
+            
+            // Toast kapandığında DOM'dan kaldır
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                if (toastElement.parentNode) {
+                    toastElement.parentNode.removeChild(toastElement);
+                }
+            });
+        }
+    </script>
+}
