@@ -122,7 +122,7 @@ namespace ProjeTakip.Middleware
                 // İlk 4 byte'ı user ID olarak kullan
                 if (bytes.Length >= 4)
                 {
-                    var userId = Math.Abs(BitConverter.ToInt32(bytes, 0)) % 1000 + 1;
+                    var userId = BitConverter.ToInt32(bytes, 0);
                     return userId;
                 }
                 return 0;

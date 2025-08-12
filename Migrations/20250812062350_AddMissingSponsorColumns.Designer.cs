@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjeTakip.Data;
 
@@ -11,9 +12,11 @@ using ProjeTakip.Data;
 namespace ProjeTakip.Migrations
 {
     [DbContext(typeof(ProjeTakipContext))]
-    partial class ProjeTakipContextModelSnapshot : ModelSnapshot
+    [Migration("20250812062350_AddMissingSponsorColumns")]
+    partial class AddMissingSponsorColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

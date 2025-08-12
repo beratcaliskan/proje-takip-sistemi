@@ -118,15 +118,15 @@
                                             <td class="px-4 py-3">
                                                  <div class="d-flex gap-2">
                                                      <button type="button" class="btn btn-sm btn-info" 
-                                                             onclick="viewProject(@proje.ProjeID)">
+                                                             onclick="viewProject(@(proje.ProjeID ?? 0))">
                                                          <i class="fas fa-eye me-1"></i>Detay
                                                      </button>
                                                      <button type="button" class="btn btn-sm btn-success" 
-                                                             onclick="printSingleProject(@proje.ProjeID)">
+                                                             onclick="printSingleProject(@(proje.ProjeID ?? 0))">
                                                          <i class="fas fa-print me-1"></i>Yazdır
                                                      </button>
                                                      <button type="button" class="btn btn-sm btn-warning" 
-                                                             onclick="editProject(@proje.ProjeID)">
+                                                             onclick="editProject(@(proje.ProjeID ?? 0))">
                                                          <i class="fas fa-edit me-1"></i>Düzenle
                                                      </button>
                                                      <button type="button" class="btn btn-sm btn-danger" 
@@ -598,11 +598,11 @@
                                             <i class="fas fa-sort me-1"></i>Sıralama
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="timelineSortDropdown">
-                                            <li><a class="dropdown-item" href="#" onclick="sortTimeline('date-desc')"><i class="fas fa-arrow-down me-2"></i>Tarih (Yeni → Eski)</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="sortTimeline('date-asc')"><i class="fas fa-arrow-up me-2"></i>Tarih (Eski → Yeni)</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); sortTimeline('date-desc')"><i class="fas fa-arrow-down me-2"></i>Tarih (Yeni → Eski)</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); sortTimeline('date-asc')"><i class="fas fa-arrow-up me-2"></i>Tarih (Eski → Yeni)</a></li>
                                             <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="#" onclick="sortTimeline('progress-desc')"><i class="fas fa-arrow-down me-2"></i>İlerleme (Yüksek → Düşük)</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="sortTimeline('progress-asc')"><i class="fas fa-arrow-up me-2"></i>İlerleme (Düşük → Yüksek)</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); sortTimeline('progress-desc')"><i class="fas fa-arrow-down me-2"></i>İlerleme (Yüksek → Düşük)</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); sortTimeline('progress-asc')"><i class="fas fa-arrow-up me-2"></i>İlerleme (Düşük → Yüksek)</a></li>
                                         </ul>
                                     </div>
                                     <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadProjectTimeline(currentProjectId)" title="Yenile">
@@ -829,14 +829,29 @@
         
         // Proje detay görüntüleme fonksiyonu
         function viewProject(projeID) {
+            console.log('viewProject called with ID:', projeID);
+            
+            // ID kontrolü
+            if (!projeID || projeID === 0) {
+                showToast('Geçersiz proje ID', 'error');
+                return;
+            }
+            
+            // RequestVerificationToken'ı güvenli şekilde al
+            const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenElement ? tokenElement.value : '';
+            console.log('Token found:', !!tokenElement);
+            
             // AJAX ile proje verilerini getir
             fetch(`?handler=ProjectData&projectId=${projeID}`, {
                 method: 'GET',
                 headers: {
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    'RequestVerificationToken': token
                 }
             })
             .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -952,7 +967,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('Proje verileri alınırken bir hata oluştu.', 'error');
+                showToast(`Proje verileri alınırken bir hata oluştu: ${error.message}`, 'error');
             });
         }
         
@@ -2285,35 +2300,51 @@
         let currentTimelineData = [];
         
         function sortTimeline(sortType) {
-            if (currentTimelineData.length === 0) return;
+            console.log('sortTimeline çağrıldı, sortType:', sortType);
+            console.log('currentTimelineData uzunluğu:', currentTimelineData.length);
+            
+            if (currentTimelineData.length === 0) {
+                console.log('currentTimelineData boş, sıralama yapılamıyor');
+                return;
+            }
             
             let sortedData = [...currentTimelineData];
             
             switch(sortType) {
                 case 'date-desc':
                     sortedData.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+                    console.log('Tarih azalan sıralama uygulandı');
                     break;
                 case 'date-asc':
                     sortedData.sort((a, b) => new Date(a.tarih) - new Date(b.tarih));
+                    console.log('Tarih artan sıralama uygulandı');
                     break;
                 case 'progress-desc':
                     sortedData.sort((a, b) => (b.yuzde || 0) - (a.yuzde || 0));
+                    console.log('İlerleme azalan sıralama uygulandı');
                     break;
                 case 'progress-asc':
                     sortedData.sort((a, b) => (a.yuzde || 0) - (b.yuzde || 0));
+                    console.log('İlerleme artan sıralama uygulandı');
                     break;
                 default:
                     sortedData.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+                    console.log('Varsayılan sıralama uygulandı');
             }
             
+            console.log('Sıralanmış veri:', sortedData);
             displayTimeline(sortedData, false);
         }
         
         // Timeline görüntüleme fonksiyonu
         function displayTimeline(progressList, saveData = true) {
+            console.log('displayTimeline çağrıldı, progressList uzunluğu:', progressList.length);
+            console.log('saveData:', saveData);
+            
             const timelineContainer = document.getElementById('projectTimelineContainer');
             
             if (progressList.length === 0) {
+                console.log('progressList boş, boş timeline gösteriliyor');
                 displayEmptyTimeline();
                 return;
             }
@@ -2321,6 +2352,7 @@
             // Veriyi sakla (sadece ilk yüklemede)
             if (saveData) {
                 currentTimelineData = [...progressList];
+                console.log('currentTimelineData güncellendi, uzunluk:', currentTimelineData.length);
             }
             
             // İlerlemeleri tarihe göre sırala (en yeni en üstte) - sadece saveData true ise

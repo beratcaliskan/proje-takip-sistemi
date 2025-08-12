@@ -19,6 +19,45 @@ namespace ProjeTakip.Controllers
             _systemLogService = systemLogService;
         }
 
+        private async Task<string> GetCurrentUserNameAsync()
+        {
+            try
+            {
+                var userId = ExtractUserIdFromToken();
+                if (userId <= 0)
+                {
+                    return "System";
+                }
+
+                var kullanici = await _context.Kullanicilar.FindAsync(userId);
+                
+                return kullanici?.AdSoyad ?? "System";
+            }
+            catch
+            {
+                return "System";
+            }
+        }
+
+        private int ExtractUserIdFromToken()
+        {
+            try
+            {
+                var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                if (authHeader != null && authHeader.StartsWith("Bearer "))
+                {
+                    var token = authHeader.Substring("Bearer ".Length).Trim();
+                    var bytes = Convert.FromBase64String(token);
+                    return BitConverter.ToInt32(bytes, 0);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetProjects([FromQuery] int? durum, [FromQuery] string? mudurluk)
         {
@@ -182,11 +221,14 @@ namespace ProjeTakip.Controllers
                 _context.Projeler.Add(proje);
                 await _context.SaveChangesAsync();
 
+                // Token'dan kullanıcı bilgisini al
+                var kullaniciAdi = await GetCurrentUserNameAsync();
+
                 // Log kaydı
                 await _systemLogService.LogAsync(
                     "Proje Eklendi",
                     $"Yeni proje eklendi: {proje.ProjeAd}",
-                    "System",
+                    kullaniciAdi,
                     HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
                 );
 
@@ -244,11 +286,14 @@ namespace ProjeTakip.Controllers
 
                 await _context.SaveChangesAsync();
 
+                // Token'dan kullanıcı bilgisini al
+                var kullaniciAdi = await GetCurrentUserNameAsync();
+
                 // Log kaydı
                 await _systemLogService.LogAsync(
                     "Proje Güncellendi",
                     $"Proje güncellendi: {proje.ProjeAd}",
-                    "System",
+                    kullaniciAdi,
                     HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
                 );
 
@@ -275,11 +320,14 @@ namespace ProjeTakip.Controllers
                 _context.Projeler.Remove(proje);
                 await _context.SaveChangesAsync();
 
+                // Token'dan kullanıcı bilgisini al
+                var kullaniciAdi = await GetCurrentUserNameAsync();
+
                 // Log kaydı
                 await _systemLogService.LogAsync(
                     "Proje Silindi",
                     $"Proje silindi: {projeAd}",
-                    "System",
+                    kullaniciAdi,
                     HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
                 );
 

@@ -19,6 +19,45 @@ namespace ProjeTakip.Controllers
             _systemLogService = systemLogService;
         }
 
+        private async Task<string> GetCurrentUserNameAsync()
+        {
+            try
+            {
+                var userId = ExtractUserIdFromToken();
+                if (userId <= 0)
+                {
+                    return "System";
+                }
+
+                var kullanici = await _context.Kullanicilar.FindAsync(userId);
+                
+                return kullanici?.AdSoyad ?? "System";
+            }
+            catch
+            {
+                return "System";
+            }
+        }
+
+        private int ExtractUserIdFromToken()
+        {
+            try
+            {
+                var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                if (authHeader != null && authHeader.StartsWith("Bearer "))
+                {
+                    var token = authHeader.Substring("Bearer ".Length).Trim();
+                    var bytes = Convert.FromBase64String(token);
+                    return BitConverter.ToInt32(bytes, 0);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetSponsors()
         {
@@ -114,11 +153,14 @@ namespace ProjeTakip.Controllers
                 _context.Sponsorler.Add(sponsor);
                 await _context.SaveChangesAsync();
 
+                // Token'dan kullanıcı bilgisini al
+                var kullaniciAdi = await GetCurrentUserNameAsync();
+
                 // Log kaydı
                 await _systemLogService.LogAsync(
                     "Sponsor Eklendi",
                     $"Yeni sponsor eklendi: {sponsor.SponsorAd}",
-                    "System",
+                    kullaniciAdi,
                     HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
                 );
 
@@ -167,11 +209,14 @@ namespace ProjeTakip.Controllers
                 
                 await _context.SaveChangesAsync();
 
+                // Token'dan kullanıcı bilgisini al
+                var kullaniciAdi = await GetCurrentUserNameAsync();
+
                 // Log kaydı
                 await _systemLogService.LogAsync(
                     "Sponsor Güncellendi",
                     $"Sponsor güncellendi: {eskiAd} -> {sponsor.SponsorAd}",
-                    "System",
+                    kullaniciAdi,
                     HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
                 );
 
@@ -212,11 +257,14 @@ namespace ProjeTakip.Controllers
                 _context.Sponsorler.Remove(sponsor);
                 await _context.SaveChangesAsync();
 
+                // Token'dan kullanıcı bilgisini al
+                var kullaniciAdi = await GetCurrentUserNameAsync();
+
                 // Log kaydı
                 await _systemLogService.LogAsync(
                     "Sponsor Silindi",
                     $"Sponsor silindi: {sponsorAd}",
-                    "System",
+                    kullaniciAdi,
                     HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
                 );
 

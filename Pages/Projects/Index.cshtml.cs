@@ -529,9 +529,11 @@ namespace ProjeTakip.Pages.Projects
 
                 return new JsonResult(new { success = true, data = projectData });
             }
-            catch
+            catch (Exception ex)
             {
-                return new JsonResult(new { success = false, message = "Proje verileri alınırken bir hata oluştu." });
+                Console.WriteLine($"OnGetProjectDataAsync Error: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return new JsonResult(new { success = false, message = $"Proje verileri alınırken bir hata oluştu: {ex.Message}" });
             }
         }
 

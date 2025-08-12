@@ -41,12 +41,21 @@
                                     <small class="text-muted">Anlık takip</small>
                                 </div>
                             </div>
-                            <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-success" style="width: 75%"></div>
+                            @{
+                                var toplamProje = Model.ToplamProjeler;
+                                var tamamlananProje = Model.TamamlananProjeler;
+                                var ilerlemeYuzdesi = toplamProje > 0 ? Math.Round((double)tamamlananProje / toplamProje * 100, 1) : 0;
+                            }
+                            <div class="progress-info d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Proje Tamamlanma Oranı</span>
+                                <span class="fw-bold text-primary">%@ilerlemeYuzdesi</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 12px;">
+                                <div class="progress-bar bg-gradient-primary" style="width: @ilerlemeYuzdesi%"></div>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <small class="text-muted">%75 Tamamlandı</small>
-                                <small class="text-success fw-semibold">Zamanında</small>
+                                <small class="text-muted">%@ilerlemeYuzdesi Tamamlandı</small>
+                                <small class="text-success fw-semibold">@(Model.AktifProjeler > 0 ? "Devam Ediyor" : "Tamamlandı")</small>
                             </div>
                         </div>
                     </div>
@@ -230,14 +239,14 @@
                             </div>
                         </div>
                         @{
-                            var toplamHedef = 20; // Haftalık hedef
-                            var tamamlanan = Model.HaftalikYeniProjeler + Model.HaftalikTamamlananProjeler + Model.HaftalikIlerlemeler;
-                            var yuzde = toplamHedef > 0 ? Math.Min((double)tamamlanan / toplamHedef * 100, 100) : 0;
+                            var haftalikToplam = Model.HaftalikYeniProjeler + Model.HaftalikTamamlananProjeler + Model.HaftalikIlerlemeler;
+                            var haftalikHedef = Math.Max(haftalikToplam, 10); // Dinamik hedef
+                            var haftalikYuzde = haftalikHedef > 0 ? Math.Round((double)haftalikToplam / haftalikHedef * 100, 1) : 0;
                         }
                         <div class="progress mb-2" style="height: 8px;">
-                            <div class="progress-bar bg-gradient" style="width: @yuzde%"></div>
+                            <div class="progress-bar bg-gradient" style="width: @haftalikYuzde%"></div>
                         </div>
-                        <small class="text-muted">Haftalık aktivitenin %@Math.Round(yuzde, 0)'i tamamlandı</small>
+                        <small class="text-muted">Bu hafta @haftalikToplam aktivite gerçekleştirildi</small>
                     </div>
                 </div>
             </div>
